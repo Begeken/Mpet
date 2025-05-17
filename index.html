@@ -2,20 +2,19 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
 <title>PetMiner 2250 Neon Space Background</title>
 <style>
   @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css');
 
-  body {
+  html, body {
     margin: 0;
-    overflow-x: hidden;
+    padding: 0;
+    overflow: hidden; /* Scroll'u engelle */
     font-family: 'Orbitron', sans-serif, monospace;
     background: #0a0f1a;
     color: #33cccc;
-    padding: 40px;
     text-align: center;
-    position: relative;
     height: 100vh;
   }
 
@@ -31,6 +30,11 @@
   #uiContainer {
     position: relative;
     z-index: 10;
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
   }
 
   h1 {
@@ -98,28 +102,36 @@
   }
 
   nav {
-    margin-top: 50px;
+    margin-top: 30px;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
   }
 
   nav button {
     background: transparent;
     color: #33cccc;
-    font-size: 1.3rem;
-    padding: 10px 20px;
-    border-radius: 12px;
+    font-size: 0.9rem;
+    padding: 8px 15px;
+    border-radius: 8px;
     box-shadow:
-      0 0 12px #33cccc,
-      0 0 25px #33cccc;
+      0 0 8px #33cccc,
+      0 0 15px #33cccc;
     display: inline-flex;
     align-items: center;
-    gap: 10px;
+    gap: 5px;
     transition: 0.3s;
+    min-width: 80px;
+  }
+
+  nav button i {
+    font-size: 0.9rem;
   }
 
   nav button:hover {
     box-shadow:
-      0 0 25px #33cccc,
-      0 0 50px #33cccc;
+      0 0 15px #33cccc,
+      0 0 30px #33cccc;
     color: #a0ffff;
   }
 
@@ -148,7 +160,6 @@
     }
   }
 
-  /* SAYFA GEÇİŞLERİ İÇİN YENİ CSS */
   .page {
     display: none;
     animation: fadeIn 0.5s ease;
@@ -182,7 +193,6 @@
 <div id="uiContainer">
   <h1>PetMiner <i class="fas fa-paw"></i></h1>
 
-  <!-- SAYFALAR -->
   <div id="homePage" class="page active">
     <button id="farmButton">Farm ⛏️</button>
     <div id="coinDisplay">Mpet: 0</div>
@@ -201,8 +211,7 @@
   <div id="frensPage" class="page">
     <h2>Your Frens</h2>
     <p>Connect with friends to mine together!</p>
-    <div class="frens-list">
-    </div>
+    <div class="frens-list"></div>
   </div>
 
   <nav>
@@ -214,82 +223,59 @@
 
 <script src="https://cdn.jsdelivr.net/npm/three@0.150.1/build/three.min.js"></script>
 <script>
-  // -------- ARKA PLAN ANİMASYONU (Aynen Korundu) --------
   const canvas = document.getElementById('bgCanvas');
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.setClearColor(0x0a0f1a, 1);
 
   const scene = new THREE.Scene();
-
-  const camera = new THREE.PerspectiveCamera(
-    75,
-    window.innerWidth / window.innerHeight,
-    0.1,
-    1000
-  );
+  const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
   camera.position.z = 40;
 
-  // Neon grid lines
   const gridGroup = new THREE.Group();
   const gridColor = new THREE.Color('#22ccff');
 
   for (let i = -25; i <= 25; i += 2) {
-    // Horizontal lines
     let geometry = new THREE.BufferGeometry().setFromPoints([
       new THREE.Vector3(-25, 0, i),
       new THREE.Vector3(25, 0, i)
     ]);
     let material = new THREE.LineBasicMaterial({ color: gridColor, transparent: true, opacity: 0.15 });
-    let line = new THREE.Line(geometry, material);
-    gridGroup.add(line);
+    gridGroup.add(new THREE.Line(geometry, material));
 
-    // Vertical lines
     geometry = new THREE.BufferGeometry().setFromPoints([
       new THREE.Vector3(i, 0, -25),
       new THREE.Vector3(i, 0, 25)
     ]);
-    material = new THREE.LineBasicMaterial({ color: gridColor, transparent: true, opacity: 0.15 });
-    line = new THREE.Line(geometry, material);
-    gridGroup.add(line);
+    gridGroup.add(new THREE.Line(geometry, material));
   }
   gridGroup.position.y = -10;
   scene.add(gridGroup);
 
-  // Neon star particles
   const starCount = 150;
   const starGeometry = new THREE.BufferGeometry();
   const starPositions = new Float32Array(starCount * 3);
-
   for (let i = 0; i < starCount; i++) {
     starPositions[i * 3] = (Math.random() - 0.5) * 80;
     starPositions[i * 3 + 1] = (Math.random() - 0.5) * 50 + 10;
     starPositions[i * 3 + 2] = (Math.random() - 0.5) * 80;
   }
   starGeometry.setAttribute('position', new THREE.BufferAttribute(starPositions, 3));
-
   const starMaterial = new THREE.PointsMaterial({
     color: new THREE.Color('#33ccff'),
     size: 0.5,
-    sizeAttenuation: true,
     transparent: true,
     opacity: 0.8,
     blending: THREE.AdditiveBlending,
     depthWrite: false,
   });
-
   const stars = new THREE.Points(starGeometry, starMaterial);
   scene.add(stars);
 
-  // Neon moving lines
   const lineCount = 40;
   const linesGroup = new THREE.Group();
-
   for (let i = 0; i < lineCount; i++) {
-    const geometry = new THREE.BufferGeometry().setFromPoints([
-      new THREE.Vector3(0, 0, 0),
-      new THREE.Vector3(0, 0, -10)
-    ]);
+    const geometry = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, -10)]);
     const material = new THREE.LineBasicMaterial({
       color: new THREE.Color(`hsl(${220 + i * 3}, 100%, 70%)`),
       transparent: true,
@@ -306,12 +292,9 @@
   }
   scene.add(linesGroup);
 
-  // Animate background
   function animate(time = 0) {
     requestAnimationFrame(animate);
-
     gridGroup.rotation.y = Math.sin(time / 3000) * 0.03;
-
     const positions = stars.geometry.attributes.position.array;
     for (let i = 0; i < starCount; i++) {
       positions[i * 3 + 1] += 0.02 + 0.01 * Math.sin(time / 1000 + i);
@@ -322,7 +305,6 @@
       }
     }
     stars.geometry.attributes.position.needsUpdate = true;
-
     linesGroup.children.forEach(line => {
       line.position.z += 0.5;
       if (line.position.z > 20) {
@@ -331,7 +313,6 @@
         line.position.y = (Math.random() - 0.5) * 40 + 10;
       }
     });
-
     renderer.render(scene, camera);
   }
   animate();
@@ -342,7 +323,7 @@
     camera.updateProjectionMatrix();
   });
 
-  // -------- PETMINER LOGIC --------
+  // -------- PetMiner Logic --------
   const farmBtn = document.getElementById('farmButton');
   const coinDisplay = document.getElementById('coinDisplay');
   const message = document.getElementById('message');
@@ -352,7 +333,7 @@
   const frensBtn = document.getElementById('frensBtn');
 
   const COINS_PER_FARM = 100;
-  const FARM_COOLDOWN = 1000 * 60 * 60 * 8; // 8 hours
+  const FARM_COOLDOWN = 1000 * 60 * 60 * 8;
 
   function getCoins() {
     return parseInt(localStorage.getItem('coins')) || 0;
@@ -373,15 +354,12 @@
   function updateUI() {
     const coins = getCoins();
     coinDisplay.textContent = `Mpet: ${coins}`;
-
     const lastFarm = getLastFarmTime();
     const now = Date.now();
-
     if (now - lastFarm >= FARM_COOLDOWN) {
       farmBtn.disabled = false;
       message.textContent = '⛏️ Farming';
       message.style.color = '#33cccc';
-      message.style.fontWeight = '700';
       message.style.textShadow = '0 0 10px #33cccc';
     } else {
       farmBtn.disabled = true;
@@ -391,7 +369,6 @@
       const seconds = Math.floor((waitTime % (1000 * 60)) / 1000);
       message.textContent = `⏳${hours}h ${minutes}m ${seconds}s`;
       message.style.color = '#ff3377';
-      message.style.fontWeight = '700';
       message.style.textShadow = '0 0 10px #ff3377';
     }
   }
@@ -408,7 +385,6 @@
     }
   });
 
-  // -------- SAYFA GEÇİŞ MANTIĞI --------
   const pages = {
     home: document.getElementById('homePage'),
     earn: document.getElementById('earnPage'),
@@ -416,31 +392,28 @@
   };
 
   function showPage(page) {
-    // Tüm sayfaları gizle
-    Object.values(pages).forEach(p => {
-      p.classList.remove('active');
-    });
-    
-    // İstenen sayfayı göster
+    Object.values(pages).forEach(p => p.classList.remove('active'));
     pages[page].classList.add('active');
-    
-    // Nav butonlarını güncelle
     homeBtn.disabled = (page === 'home');
     earnBtn.disabled = (page === 'earn');
     frensBtn.disabled = (page === 'frens');
   }
 
-  // Buton eventleri
   homeBtn.addEventListener('click', () => showPage('home'));
   earnBtn.addEventListener('click', () => showPage('earn'));
   frensBtn.addEventListener('click', () => showPage('frens'));
 
-  // Başlangıçta Home sayfasını göster
   showPage('home');
   updateUI();
-
-  // Update countdown every second
   setInterval(updateUI, 1000);
+
+  // --- Mobil scroll'u tamamen engelle ---
+  window.addEventListener('load', () => {
+    setTimeout(() => window.scrollTo(0, 0), 0);
+  });
+  document.body.addEventListener('touchmove', function(e) {
+    e.preventDefault();
+  }, { passive: false });
 </script>
 
 </body>
