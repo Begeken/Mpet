@@ -1,420 +1,181 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-<title>PetMiner 2250 Neon Space Background</title>
-<style>
-  @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css');
-
-  html, body {
-    margin: 0;
-    padding: 0;
-    overflow: hidden; /* Scroll'u engelle */
-    font-family: 'Orbitron', sans-serif, monospace;
-    background: #0a0f1a;
-    color: #33cccc;
-    text-align: center;
-    height: 100vh;
-  }
-
-  #bgCanvas {
-    position: fixed;
-    top: 0; left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 0;
-    display: block;
-  }
-
-  #uiContainer {
-    position: relative;
-    z-index: 10;
-    height: 100vh;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-  }
-
-  h1 {
-    font-size: 2.7rem;
-    animation: flicker 3s infinite;
-    text-shadow:
-      0 0 8px #33cccc,
-      0 0 20px #33cccc,
-      0 0 40px #33cccc,
-      0 0 60px #33cccc;
-    margin-bottom: 20px;
-  }
-
-  #coinDisplay {
-    font-size: 2.5rem;
-    font-weight: 900;
-    margin: 30px 0;
-    text-shadow:
-      0 0 16px #33cccc,
-      0 0 40px #33cccc,
-      0 0 70px #33cccc,
-      0 0 100px #33cccc;
-  }
-
-  #message {
-    font-size: 1.3rem;
-    color: #ff3377;
-    text-shadow: 0 0 10px #ff3377;
-    min-height: 40px;
-  }
-
-  button {
-    background: linear-gradient(90deg, #0f2b31, #164650);
-    border: none;
-    border-radius: 15px;
-    padding: 18px 50px;
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: #55ffff;
-    cursor: pointer;
-    box-shadow:
-      0 0 14px #33cccc,
-      0 0 35px #33cccc,
-      0 0 50px #164650;
-    transition: all 0.3s ease;
-    margin: 10px;
-    letter-spacing: 2px;
-  }
-
-  button:hover:not(:disabled) {
-    background: linear-gradient(90deg, #33cccc, #33eeee);
-    box-shadow:
-      0 0 25px #33cccc,
-      0 0 45px #33eeee,
-      0 0 60px #33eeee;
-    color: #aaffff;
-    transform: scale(1.05);
-  }
-
-  button:disabled {
-    background: #222;
-    color: #555;
-    box-shadow: none;
-    cursor: not-allowed;
-  }
-
-  nav {
-    margin-top: 30px;
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-  }
-
-  nav button {
-    background: transparent;
-    color: #33cccc;
-    font-size: 0.9rem;
-    padding: 8px 15px;
-    border-radius: 8px;
-    box-shadow:
-      0 0 8px #33cccc,
-      0 0 15px #33cccc;
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    transition: 0.3s;
-    min-width: 80px;
-  }
-
-  nav button i {
-    font-size: 0.9rem;
-  }
-
-  nav button:hover {
-    box-shadow:
-      0 0 15px #33cccc,
-      0 0 30px #33cccc;
-    color: #a0ffff;
-  }
-
-  nav button:active {
-    transform: scale(0.95);
-  }
-
-  nav button:disabled {
-    color: #003333;
-    box-shadow: none;
-    cursor: not-allowed;
-  }
-
-  @keyframes flicker {
-    0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% {
-      opacity: 1;
-      text-shadow:
-        0 0 8px #33cccc,
-        0 0 20px #33cccc,
-        0 0 40px #33cccc,
-        0 0 60px #33cccc;
-    }
-    20%, 22%, 24%, 55% {
-      opacity: 0.7;
-      text-shadow: none;
-    }
-  }
-
-  .page {
-    display: none;
-    animation: fadeIn 0.5s ease;
-  }
-
-  .page.active {
-    display: block;
-  }
-
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  .page h2 {
-    color: #55ffff;
-    text-shadow: 0 0 10px #33cccc;
-    margin-top: 20px;
-  }
-
-  .page p {
-    color: #88ffff;
-    font-size: 1.2rem;
-  }
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>PetMiner</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+  <div class="container">
+    <!-- Header -->
+    <header>
+      <h1>🐾 PetMiner</h1>
+      <p>Your retro-futuristic mining game</p>
+    </header>
 
-<canvas id="bgCanvas"></canvas>
+    <!-- Tabs -->
+    <nav>
+      <button class="tab-button" onclick="showPage('home')">Home</button>
+      <button class="tab-button" onclick="showPage('earn')">Earn</button>
+      <button class="tab-button" onclick="showPage('frens')">Frens</button>
+    </nav>
 
-<div id="uiContainer">
-  <h1>PetMiner <i class="fas fa-paw"></i></h1>
+    <!-- Pages -->
+    <section id="home" class="page">
+      <h2>Welcome home, miner! 🏠</h2>
+      <p>Start mining to earn MPET tokens</p>
+    </section>
 
-  <div id="homePage" class="page active">
-    <button id="farmButton">Farm ⛏️</button>
-    <div id="coinDisplay">Mpet: 0</div>
-    <div id="message"></div>
+    <section id="earn" class="page hidden">
+      <h2>⛏️ Start Mining</h2>
+      <button id="mine-button">Mine</button>
+      <p>Mpet: <span id="mpet">0</span></p>
+
+      <!-- Daily Quest Card -->
+      <div id="daily-quest">
+        <h3>🎯 Daily Quest</h3>
+        <div class="progress-container">
+          <div class="progress-bar">
+            <div id="quest-progress" class="progress-fill"></div>
+          </div>
+          <div class="progress-text">
+            <span id="quest-count">0</span>/3 Mining Completed
+          </div>
+        </div>
+        <button id="claim-btn" disabled>Claim 25 MPET</button>
+        <p id="quest-complete" class="hidden">✅ Reward claimed!</p>
+      </div>
+    </section>
+
+    <section id="frens" class="page hidden">
+      <h2>Invite your frens 🤝</h2>
+      <p>Coming soon...</p>
+    </section>
   </div>
 
-  <div id="earnPage" class="page">
-    <h2>Earn Mpet</h2>
-    <p>Complete challenges to earn more Mpet!</p>
-    <div class="earn-options">
-      <button class="earn-option"><i class="fas fa-ad"></i> Watch Ad</button>
-      <button class="earn-option"><i class="fas fa-tasks"></i> Daily Quest</button>
-    </div>
-  </div>
+  <script>
+    // Tabs
+    function showPage(pageId) {
+      document.querySelectorAll('.page').forEach(p => p.classList.add('hidden'));
+      document.getElementById(pageId).classList.remove('hidden');
+      
+      // Update active tab style
+      document.querySelectorAll('.tab-button').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      event.target.classList.add('active');
+    }
 
-  <div id="frensPage" class="page">
-    <h2>Your Frens</h2>
-    <p>Connect with friends to mine together!</p>
-    <div class="frens-list"></div>
-  </div>
+    // Mpet system
+    let mpet = 0;
+    function addMpet(amount) {
+      mpet += amount;
+      document.getElementById("mpet").textContent = mpet;
+    }
 
-  <nav>
-    <button id="homeBtn"><i class="fas fa-home"></i> Home</button>
-    <button id="earnBtn"><i class="fas fa-coins"></i> Earn</button>
-    <button id="frensBtn"><i class="fas fa-users"></i> Frens</button>
-  </nav>
-</div>
+    // Daily Quest System
+    const QUEST_MAX = 3;
+    const REWARD_AMOUNT = 25;
+    let questCompleted = false;
 
-<script src="https://cdn.jsdelivr.net/npm/three@0.150.1/build/three.min.js"></script>
-<script>
-  const canvas = document.getElementById('bgCanvas');
-  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
-  renderer.setSize(window.innerWidth, window.innerHeight);
-  renderer.setClearColor(0x0a0f1a, 1);
+    function getTodayKey() {
+      const today = new Date();
+      return `quest-${today.getFullYear()}-${today.getMonth()}-${today.getDate()}`;
+    }
 
-  const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-  camera.position.z = 40;
+    function loadQuestProgress() {
+      const saved = localStorage.getItem(getTodayKey());
+      return saved ? JSON.parse(saved) : { count: 0, claimed: false };
+    }
 
-  const gridGroup = new THREE.Group();
-  const gridColor = new THREE.Color('#22ccff');
+    function saveQuestProgress(progress) {
+      localStorage.setItem(getTodayKey(), JSON.stringify(progress));
+    }
 
-  for (let i = -25; i <= 25; i += 2) {
-    let geometry = new THREE.BufferGeometry().setFromPoints([
-      new THREE.Vector3(-25, 0, i),
-      new THREE.Vector3(25, 0, i)
-    ]);
-    let material = new THREE.LineBasicMaterial({ color: gridColor, transparent: true, opacity: 0.15 });
-    gridGroup.add(new THREE.Line(geometry, material));
+    function updateQuestUI() {
+      const progress = loadQuestProgress();
+      const questCount = document.getElementById("quest-count");
+      const questProgress = document.getElementById("quest-progress");
+      const claimBtn = document.getElementById("claim-btn");
+      const completeMsg = document.getElementById("quest-complete");
 
-    geometry = new THREE.BufferGeometry().setFromPoints([
-      new THREE.Vector3(i, 0, -25),
-      new THREE.Vector3(i, 0, 25)
-    ]);
-    gridGroup.add(new THREE.Line(geometry, material));
-  }
-  gridGroup.position.y = -10;
-  scene.add(gridGroup);
+      questCount.textContent = progress.count;
+      questProgress.style.width = `${(progress.count / QUEST_MAX) * 100}%`;
 
-  const starCount = 150;
-  const starGeometry = new THREE.BufferGeometry();
-  const starPositions = new Float32Array(starCount * 3);
-  for (let i = 0; i < starCount; i++) {
-    starPositions[i * 3] = (Math.random() - 0.5) * 80;
-    starPositions[i * 3 + 1] = (Math.random() - 0.5) * 50 + 10;
-    starPositions[i * 3 + 2] = (Math.random() - 0.5) * 80;
-  }
-  starGeometry.setAttribute('position', new THREE.BufferAttribute(starPositions, 3));
-  const starMaterial = new THREE.PointsMaterial({
-    color: new THREE.Color('#33ccff'),
-    size: 0.5,
-    transparent: true,
-    opacity: 0.8,
-    blending: THREE.AdditiveBlending,
-    depthWrite: false,
-  });
-  const stars = new THREE.Points(starGeometry, starMaterial);
-  scene.add(stars);
-
-  const lineCount = 40;
-  const linesGroup = new THREE.Group();
-  for (let i = 0; i < lineCount; i++) {
-    const geometry = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, -10)]);
-    const material = new THREE.LineBasicMaterial({
-      color: new THREE.Color(`hsl(${220 + i * 3}, 100%, 70%)`),
-      transparent: true,
-      opacity: 0.2 + Math.random() * 0.4,
-      blending: THREE.AdditiveBlending
-    });
-    const line = new THREE.Line(geometry, material);
-    line.position.set(
-      (Math.random() - 0.5) * 60,
-      (Math.random() - 0.5) * 40 + 10,
-      (Math.random() - 0.5) * 40 - 20
-    );
-    linesGroup.add(line);
-  }
-  scene.add(linesGroup);
-
-  function animate(time = 0) {
-    requestAnimationFrame(animate);
-    gridGroup.rotation.y = Math.sin(time / 3000) * 0.03;
-    const positions = stars.geometry.attributes.position.array;
-    for (let i = 0; i < starCount; i++) {
-      positions[i * 3 + 1] += 0.02 + 0.01 * Math.sin(time / 1000 + i);
-      if (positions[i * 3 + 1] > 30) {
-        positions[i * 3] = (Math.random() - 0.5) * 80;
-        positions[i * 3 + 1] = -30;
-        positions[i * 3 + 2] = (Math.random() - 0.5) * 80;
+      if (progress.count >= QUEST_MAX) {
+        if (progress.claimed) {
+          claimBtn.classList.add('hidden');
+          completeMsg.classList.remove('hidden');
+        } else {
+          claimBtn.disabled = false;
+        }
+      } else {
+        claimBtn.disabled = true;
       }
     }
-    stars.geometry.attributes.position.needsUpdate = true;
-    linesGroup.children.forEach(line => {
-      line.position.z += 0.5;
-      if (line.position.z > 20) {
-        line.position.z = -40;
-        line.position.x = (Math.random() - 0.5) * 60;
-        line.position.y = (Math.random() - 0.5) * 40 + 10;
+
+    function incrementQuest() {
+      const progress = loadQuestProgress();
+      if (progress.count < QUEST_MAX && !progress.claimed) {
+        progress.count++;
+        saveQuestProgress(progress);
+        updateQuestUI();
       }
+    }
+
+    function claimReward() {
+      const progress = loadQuestProgress();
+      if (!progress.claimed && progress.count >= QUEST_MAX) {
+        progress.claimed = true;
+        saveQuestProgress(progress);
+        addMpet(REWARD_AMOUNT);
+        updateQuestUI();
+        
+        // Reward animation
+        const rewardPopup = document.createElement('div');
+        rewardPopup.textContent = `+${REWARD_AMOUNT} MPET!`;
+        rewardPopup.style.position = 'fixed';
+        rewardPopup.style.top = '50%';
+        rewardPopup.style.left = '50%';
+        rewardPopup.style.transform = 'translate(-50%, -50%)';
+        rewardPopup.style.color = 'var(--neon-pink)';
+        rewardPopup.style.fontSize = '2rem';
+        rewardPopup.style.fontWeight = 'bold';
+        rewardPopup.style.textShadow = '0 0 10px var(--neon-blue)';
+        rewardPopup.style.animation = 'floatUp 1.5s forwards';
+        document.body.appendChild(rewardPopup);
+        
+        setTimeout(() => {
+          rewardPopup.remove();
+        }, 1500);
+      }
+    }
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+      updateQuestUI();
+      
+      document.getElementById('mine-button').addEventListener('click', () => {
+        addMpet(5);
+        incrementQuest();
+      });
+      
+      document.getElementById('claim-btn').addEventListener('click', claimReward);
+      
+      // Set first tab as active
+      document.querySelector('.tab-button').classList.add('active');
     });
-    renderer.render(scene, camera);
-  }
-  animate();
 
-  window.addEventListener('resize', () => {
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
-  });
-
-  // -------- PetMiner Logic --------
-  const farmBtn = document.getElementById('farmButton');
-  const coinDisplay = document.getElementById('coinDisplay');
-  const message = document.getElementById('message');
-
-  const homeBtn = document.getElementById('homeBtn');
-  const earnBtn = document.getElementById('earnBtn');
-  const frensBtn = document.getElementById('frensBtn');
-
-  const COINS_PER_FARM = 100;
-  const FARM_COOLDOWN = 1000 * 60 * 60 * 8;
-
-  function getCoins() {
-    return parseInt(localStorage.getItem('coins')) || 0;
-  }
-
-  function setCoins(value) {
-    localStorage.setItem('coins', value);
-  }
-
-  function getLastFarmTime() {
-    return parseInt(localStorage.getItem('lastFarmTime')) || 0;
-  }
-
-  function setLastFarmTime(time) {
-    localStorage.setItem('lastFarmTime', time);
-  }
-
-  function updateUI() {
-    const coins = getCoins();
-    coinDisplay.textContent = `Mpet: ${coins}`;
-    const lastFarm = getLastFarmTime();
-    const now = Date.now();
-    if (now - lastFarm >= FARM_COOLDOWN) {
-      farmBtn.disabled = false;
-      message.textContent = '⛏️ Farming';
-      message.style.color = '#33cccc';
-      message.style.textShadow = '0 0 10px #33cccc';
-    } else {
-      farmBtn.disabled = true;
-      const waitTime = FARM_COOLDOWN - (now - lastFarm);
-      const hours = Math.floor(waitTime / (1000 * 60 * 60));
-      const minutes = Math.floor((waitTime % (1000 * 60 * 60)) / (1000 * 60));
-      const seconds = Math.floor((waitTime % (1000 * 60)) / 1000);
-      message.textContent = `⏳${hours}h ${minutes}m ${seconds}s`;
-      message.style.color = '#ff3377';
-      message.style.textShadow = '0 0 10px #ff3377';
-    }
-  }
-
-  farmBtn.addEventListener('click', () => {
-    if (!farmBtn.disabled) {
-      const coins = getCoins() + COINS_PER_FARM;
-      setCoins(coins);
-      setLastFarmTime(Date.now());
-      updateUI();
-      message.textContent = `${COINS_PER_FARM} Mpet mined! Come back in 8h.`;
-      message.style.color = '#55ffcc';
-      message.style.textShadow = '0 0 10px #55ffcc';
-    }
-  });
-
-  const pages = {
-    home: document.getElementById('homePage'),
-    earn: document.getElementById('earnPage'),
-    frens: document.getElementById('frensPage')
-  };
-
-  function showPage(page) {
-    Object.values(pages).forEach(p => p.classList.remove('active'));
-    pages[page].classList.add('active');
-    homeBtn.disabled = (page === 'home');
-    earnBtn.disabled = (page === 'earn');
-    frensBtn.disabled = (page === 'frens');
-  }
-
-  homeBtn.addEventListener('click', () => showPage('home'));
-  earnBtn.addEventListener('click', () => showPage('earn'));
-  frensBtn.addEventListener('click', () => showPage('frens'));
-
-  showPage('home');
-  updateUI();
-  setInterval(updateUI, 1000);
-
-  // --- Mobil scroll'u tamamen engelle ---
-  window.addEventListener('load', () => {
-    setTimeout(() => window.scrollTo(0, 0), 0);
-  });
-  document.body.addEventListener('touchmove', function(e) {
-    e.preventDefault();
-  }, { passive: false });
-</script>
-
+    // Animation for reward popup
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes floatUp {
+        0% { opacity: 1; transform: translate(-50%, -50%); }
+        100% { opacity: 0; transform: translate(-50%, -150%); }
+      }
+    `;
+    document.head.appendChild(style);
+  </script>
 </body>
 </html>
