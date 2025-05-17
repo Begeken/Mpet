@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>PetMiner</title>
+<style>
+  @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css');
+
+  body {
+    margin: 0;
+    overflow-x: hidden;
+    font-family: 'Orbitron', sans-serif, monospace;
+    background: #0a0f1a;
+    color: #33cccc;
+    padding: 40px;
+    text-align: center;
+    position: relative;
+    height: 100vh;
+  }
+
+  #bgCanvas {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    display: block;
+  }
+
+  #uiContainer {
+    position: relative;
+    z-index: 10;
+  }
+
+  h1 {
+    font-size: 2.7rem;
+    animation: flicker 3s infinite;
+    text-shadow:
+      0 0 8px #33cccc,
+      0 0 20px #33cccc,
+      0 0 40px #33cccc,
+      0 0 60px #33cccc;
+    margin-bottom: 20px;
+  }
+
+  #coinDisplay {
+    font-size: 2.5rem;
+    font-weight: 900;
+    margin: 30px 0;
+    text-shadow:
+      0 0 16px #33cccc,
+      0 0 40px #33cccc,
+      0 0 70px #33cccc,
+      0 0 100px #33cccc;
+  }
+
+  #message {
+    font-size: 1.3rem;
+    color: #ff3377;
+    text-shadow: 0 0 10px #ff3377;
+    min-height: 40px;
+  }
+
+  button {
+    background: linear-gradient(90deg, #0f2b31, #164650);
+    border: none;
+    border-radius: 15px;
+    padding: 18px 50px;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #55ffff;
+    cursor: pointer;
+    box-shadow:
+      0 0 14px #33cccc,
+      0 0 35px #33cccc,
+      0 0 50px #164650;
+    transition: all 0.3s ease;
+    margin: 10px;
+    letter-spacing: 2px;
+  }
+
+  button:hover:not(:disabled) {
+    background: linear-gradient(90deg, #33cccc, #33eeee);
+    box-shadow:
+      0 0 25px #33cccc,
+      0 0 45px #33eeee,
+      0 0 60px #33eeee;
+    color: #aaffff;
+    transform: scale(1.05);
+  }
+
+  button:disabled {
+    background: #222;
+    color: #555;
+    box-shadow: none;
+    cursor: not-allowed;
+  }
+
+  nav {
+    margin-top: 50px;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+  }
+
+  nav button {
+    background: transparent;
+    color: #33cccc;
+    font-size: 0.9rem; /* Daha küçük font boyutu */
+    padding: 8px 15px; /* Daha küçük padding */
+    border-radius: 8px; /* Daha küçük border radius */
+    box-shadow:
+      0 0 8px #33cccc,
+      0 0 15px #33cccc;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    transition: 0.3s;
+    min-width: 80px; /* Minimum genişlik */
+  }
+
+  nav button i {
+    font-size: 0.9rem; /* İkon boyutunu küçült */
+  }
+
+  nav button:hover {
+    box-shadow:
+      0 0 15px #33cccc,
+      0 0 30px #33cccc;
+    color: #a0ffff;
+  }
+
+  nav button:active {
+    transform: scale(0.95);
+  }
+
+  nav button:disabled {
+    color: #003333;
+    box-shadow: none;
+    cursor: not-allowed;
+  }
+
+  @keyframes flicker {
+    0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% {
+      opacity: 1;
+      text-shadow:
+        0 0 8px #33cccc,
+        0 0 20px #33cccc,
+        0 0 40px #33cccc,
+        0 0 60px #33cccc;
+    }
+    20%, 22%, 24%, 55% {
+      opacity: 0.7;
+      text-shadow: none;
+    }
+  }
+
+  /* SAYFA GEÇİŞLERİ İÇİN YENİ CSS */
+  .page {
+    display: none;
+    animation: fadeIn 0.5s ease;
+  }
+
+  .page.active {
+    display: block;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .page h2 {
+    color: #55ffff;
+    text-shadow: 0 0 10px #33cccc;
+    margin-top: 20px;
+  }
+
+  .page p {
+    color: #88ffff;
+    font-size: 1.2rem;
+  }
+</style>
+</head>
+<body>
+
+<canvas id="bgCanvas"></canvas>
+
+<div id="uiContainer">
+  <h1>PetMiner <i class="fas fa-paw"></i></h1>
+
+  <!-- SAYFALAR -->
+  <div id="homePage" class="page active">
+    <button id="farmButton">Farm ⛏️</button>
+    <div id="coinDisplay">Mpet: 0</div>
+    <div id="message"></div>
+  </div>
+
+  <div id="earnPage" class="page">
+  <h2>Earn Mpet</h2>
+  <p>Complete challenges to earn more Mpet!</p>
+  
+  <div class="earn-options">
+    <button class="earn-option"><i class="fas fa-ad"></i> Watch Ad</button>
+    <button class="earn-option"><i class="fas fa-tasks"></i> Daily Quest</button>
+  </div>
+
+  <!-- Daily Quest Card -->
+  <div id="daily-quest" class="card neon-glow mt-4 p-4 rounded-xl text-white text-center shadow-xl backdrop-blur-sm">
+    <h2 class="text-2xl font-bold mb-2">🎯 Daily Quest</h2>
+    <p class="mb-2">Mine actions: <span id="quest-progress">0</span>/3</p>
+    <button id="claim-reward" class="btn bg-green-500 hover:bg-green-600 px-4 py-2 rounded-full text-white mt-2 hidden">
+      🎁 Claim Reward
+    </button>
+    <p id="quest-complete-msg" class="text-green-400 mt-2 hidden">Congrats! Quest completed 🎉</p>
+  </div>
+</div>
+
+  <div id="frensPage" class="page">
+    <h2>Your Frens</h2>
+    <p>Connect with friends to mine together!</p>
+    <div class="frens-list">
+    </div>
+  </div>
+
+  <nav>
+    <button id="homeBtn"><i class="fas fa-home"></i> Home</button>
+    <button id="earnBtn"><i class="fas fa-coins"></i> Earn</button>
+    <button id="frensBtn"><i class="fas fa-users"></i> Frens</button>
+  </nav>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/three@0.150.1/build/three.min.js"></script>
+<script>
+  // -------- ARKA PLAN ANİMASYONU (Aynen Korundu) --------
+  const canvas = document.getElementById('bgCanvas');
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setClearColor(0x0a0f1a, 1);
+
+  const scene = new THREE.Scene();
+
+  const camera = new THREE.PerspectiveCamera(
+    75,
+    window.innerWidth / window.innerHeight,
+    0.1,
+    1000
+  );
+  camera.position.z = 40;
+
+  // Neon grid lines
+  const gridGroup = new THREE.Group();
+  const gridColor = new THREE.Color('#22ccff');
+
+  for (let i = -25; i <= 25; i += 2) {
+    // Horizontal lines
+    let geometry = new THREE.BufferGeometry().setFromPoints([
+      new THREE.Vector3(-25, 0, i),
+      new THREE.Vector3(25, 0, i)
+    ]);
+    let material = new THREE.LineBasicMaterial({ color: gridColor, transparent: true, opacity: 0.15 });
+    let line = new THREE.Line(geometry, material);
+    gridGroup.add(line);
+
+    // Vertical lines
+    geometry = new THREE.BufferGeometry().setFromPoints([
+      new THREE.Vector3(i, 0, -25),
+      new THREE.Vector3(i, 0, 25)
+    ]);
+    material = new THREE.LineBasicMaterial({ color: gridColor, transparent: true, opacity: 0.15 });
+    line = new THREE.Line(geometry, material);
+    gridGroup.add(line);
+  }
+  gridGroup.position.y = -10;
+  scene.add(gridGroup);
+
+  // Neon star particles
+  const starCount = 150;
+  const starGeometry = new THREE.BufferGeometry();
+  const starPositions = new Float32Array(starCount * 3);
+
+  for (let i = 0; i < starCount; i++) {
+    starPositions[i * 3] = (Math.random() - 0.5) * 80;
+    starPositions[i * 3 + 1] = (Math.random() - 0.5) * 50 + 10;
+    starPositions[i * 3 + 2] = (Math.random() - 0.5) * 80;
+  }
+  starGeometry.setAttribute('position', new THREE.BufferAttribute(starPositions, 3));
+
+  const starMaterial = new THREE.PointsMaterial({
+    color: new THREE.Color('#33ccff'),
+    size: 0.5,
+    sizeAttenuation: true,
+    transparent: true,
+    opacity: 0.8,
+    blending: THREE.AdditiveBlending,
+    depthWrite: false,
+  });
+
+  const stars = new THREE.Points(starGeometry, starMaterial);
+  scene.add(stars);
+
+  // Neon moving lines
+  const lineCount = 40;
+  const linesGroup = new THREE.Group();
+
+  for (let i = 0; i < lineCount; i++) {
+    const geometry = new THREE.BufferGeometry().setFromPoints([
+      new THREE.Vector3(0, 0, 0),
+      new THREE.Vector3(0, 0, -10)
+    ]);
+    const material = new THREE.LineBasicMaterial({
+      color: new THREE.Color(`hsl(${220 + i * 3}, 100%, 70%)`),
+      transparent: true,
+      opacity: 0.2 + Math.random() * 0.4,
+      blending: THREE.AdditiveBlending
+    });
+    const line = new THREE.Line(geometry, material);
+    line.position.set(
+      (Math.random() - 0.5) * 60,
+      (Math.random() - 0.5) * 40 + 10,
+      (Math.random() - 0.5) * 40 - 20
+    );
+    linesGroup.add(line);
+  }
+  scene.add(linesGroup);
+
+  // Animate background
+  function animate(time = 0) {
+    requestAnimationFrame(animate);
+
+    gridGroup.rotation.y = Math.sin(time / 3000) * 0.03;
+
+    const positions = stars.geometry.attributes.position.array;
+    for (let i = 0; i < starCount; i++) {
+      positions[i * 3 + 1] += 0.02 + 0.01 * Math.sin(time / 1000 + i);
+      if (positions[i * 3 + 1] > 30) {
+        positions[i * 3] = (Math.random() - 0.5) * 80;
+        positions[i * 3 + 1] = -30;
+        positions[i * 3 + 2] = (Math.random() - 0.5) * 80;
+      }
+    }
+    stars.geometry.attributes.position.needsUpdate = true;
+
+    linesGroup.children.forEach(line => {
+      line.position.z += 0.5;
+      if (line.position.z > 20) {
+        line.position.z = -40;
+        line.position.x = (Math.random() - 0.5) * 60;
+        line.position.y = (Math.random() - 0.5) * 40 + 10;
+      }
+    });
+
+    renderer.render(scene, camera);
+  }
+  animate();
+
+  window.addEventListener('resize', () => {
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+  });
+
+  // -------- PETMINER LOGIC --------
+  const farmBtn = document.getElementById('farmButton');
+  const coinDisplay = document.getElementById('coinDisplay');
+  const message = document.getElementById('message');
+
+  const homeBtn = document.getElementById('homeBtn');
+  const earnBtn = document.getElementById('earnBtn');
+  const frensBtn = document.getElementById('frensBtn');
+
+  const COINS_PER_FARM = 100;
+  const FARM_COOLDOWN = 1000 * 60 * 60 * 8; // 8 hours
+
+  function getCoins() {
+    return parseInt(localStorage.getItem('coins')) || 0;
+  }
+
+  function setCoins(value) {
+    localStorage.setItem('coins', value);
+  }
+
+  function getLastFarmTime() {
+    return parseInt(localStorage.getItem('lastFarmTime')) || 0;
+  }
+
+  function setLastFarmTime(time) {
+    localStorage.setItem('lastFarmTime', time);
+  }
+
+  function updateUI() {
+    const coins = getCoins();
+    coinDisplay.textContent = `Mpet: ${coins}`;
+
+    const lastFarm = getLastFarmTime();
+    const now = Date.now();
+
+    if (now - lastFarm >= FARM_COOLDOWN) {
+      farmBtn.disabled = false;
+      message.textContent = '⛏️ Farming';
+      message.style.color = '#33cccc';
+      message.style.fontWeight = '700';
+      message.style.textShadow = '0 0 10px #33cccc';
+    } else {
+      farmBtn.disabled = true;
+      const waitTime = FARM_COOLDOWN - (now - lastFarm);
+      const hours = Math.floor(waitTime / (1000 * 60 * 60));
+      const minutes = Math.floor((waitTime % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((waitTime % (1000 * 60)) / 1000);
+      message.textContent = `⏳${hours}h ${minutes}m ${seconds}s`;
+      message.style.color = '#ff3377';
+      message.style.fontWeight = '700';
+      message.style.textShadow = '0 0 10px #ff3377';
+    }
+  }
+
+  farmBtn.addEventListener('click', () => {
+    if (!farmBtn.disabled) {
+      const coins = getCoins() + COINS_PER_FARM;
+      setCoins(coins);
+      setLastFarmTime(Date.now());
+      updateUI();
+      message.textContent = `${COINS_PER_FARM} Mpet mined! Come back in 8h.`;
+      message.style.color = '#55ffcc';
+      message.style.textShadow = '0 0 10px #55ffcc';
+    }
+  });
+
+  // -------- SAYFA GEÇİŞ MANTIĞI --------
+  const pages = {
+    home: document.getElementById('homePage'),
+    earn: document.getElementById('earnPage'),
+    frens: document.getElementById('frensPage')
+  };
+
+  function showPage(page) {
+    // Tüm sayfaları gizle
+    Object.values(pages).forEach(p => {
+      p.classList.remove('active');
+    });
+    
+    // İstenen sayfayı göster
+    pages[page].classList.add('active');
+    
+    // Nav butonlarını güncelle
+    homeBtn.disabled = (page === 'home');
+    earnBtn.disabled = (page === 'earn');
+    frensBtn.disabled = (page === 'frens');
+  }
+
+  // Buton eventleri
+  homeBtn.addEventListener('click', () => showPage('home'));
+  earnBtn.addEventListener('click', () => showPage('earn'));
+  frensBtn.addEventListener('click', () => showPage('frens'));
+
+  // Başlangıçta Home sayfasını göster
+  showPage('home');
+  updateUI();
+
+  // Update countdown every second
+  setInterval(updateUI, 1000);
+</script>
+  // Daily Quest Logic (Frontend JS)
+
+  const questGoal = 3;
+  let questProgress = 0;
+  let lastReset = localStorage.getItem("dailyQuestDate");
+  let today = new Date().toDateString();
+
+  if (lastReset !== today) {
+    questProgress = 0;
+    localStorage.setItem("dailyQuestProgress", 0);
+    localStorage.setItem("dailyQuestDate", today);
+  } else {
+    questProgress = parseInt(localStorage.getItem("dailyQuestProgress")) || 0;
+  }
+
+  window.addEventListener("DOMContentLoaded", () => {
+    updateQuestUI();
+// ---- DAILY QUEST LOGIC ----
+const QUEST_KEY = 'dailyQuest';
+const questProgressSpan = document.getElementById('quest-progress');
+const claimBtn = document.getElementById('claim-reward');
+const questCompleteMsg = document.getElementById('quest-complete-msg');
+
+function getQuestData() {
+  const data = JSON.parse(localStorage.getItem(QUEST_KEY)) || {
+    date: new Date().toDateString(),
+    count: 0,
+    claimed: false
+  };
+
+  // Eğer yeni güne girilmişse sıfırla
+  if (data.date !== new Date().toDateString()) {
+    data.count = 0;
+    data.claimed = false;
+    data.date = new Date().toDateString();
+    localStorage.setItem(QUEST_KEY, JSON.stringify(data));
+  }
+
+  return data;
+}
+
+function saveQuestData(data) {
+  localStorage.setItem(QUEST_KEY, JSON.stringify(data));
+}
+
+function updateQuestUI() {
+  const data = getQuestData();
+  questProgressSpan.textContent = data.count;
+
+  if (data.count >= 3) {
+    if (data.claimed) {
+      claimBtn.classList.add('hidden');
+      questCompleteMsg.classList.remove('hidden');
+    } else {
+      claimBtn.classList.remove('hidden');
+      questCompleteMsg.classList.add('hidden');
+    }
+  } else {
+    claimBtn.classList.add('hidden');
+    questCompleteMsg.classList.add('hidden');
+  }
+}
+
+farmBtn.addEventListener('click', (event) => {
+  event.preventDefault(); // Sayfa kaymasını engelle
+  // Mevcut cooldown kontrolü zaten updateUI’de yapılıyor, burada quest progress artışı yapılacak
+  const data = getQuestData();
+  if (data.count < 3) {
+    data.count++;
+    saveQuestData(data);
+  }
+  updateQuestUI();
+});
+
+claimBtn.addEventListener('click', () => {
+  const data = getQuestData();
+  if (data.count >= 3 && !data.claimed) {
+    data.claimed = true;
+    const bonus = 250; // ödül miktarı
+    const current = getCoins();
+    setCoins(current + bonus);
+    message.textContent = `🎁 +${bonus} Mpet from daily quest!`;
+    saveQuestData(data);
+    updateUI();
+    updateQuestUI();
+  }
+});
+
+// Sayfa açılışında
+updateUI();
+updateQuestUI();
+
+    const farmButton = document.getElementById("farmButton");
+    if (farmButton) {
+      farmButton.addEventListener("click", () => {
+        if (questProgress < questGoal) {
+          questProgress++;
+          localStorage.setItem("dailyQuestProgress", questProgress);
+          updateQuestUI();
+        }
+      });
+    }
+
+    const claimBtn = document.getElementById("claim-reward");
+    if (claimBtn) {
+      claimBtn.addEventListener("click", () => {
+        let currentCoins = parseInt(localStorage.getItem("mpetCoins") || "0");
+        currentCoins += 20;
+        localStorage.setItem("mpetCoins", currentCoins);
+        document.getElementById("coinDisplay").innerText = `Mpet: ${currentCoins}`;
+        document.getElementById("quest-complete-msg").classList.remove("hidden");
+        document.getElementById("claim-reward").classList.add("hidden");
+      });
+    }
+  });
+
+  function updateQuestUI() {
+    const progressText = document.getElementById("quest-progress");
+    const claimBtn = document.getElementById("claim-reward");
+    const completeMsg = document.getElementById("quest-complete-msg");
+
+    if (!progressText || !claimBtn || !completeMsg) return;
+
+    progressText.innerText = questProgress;
+    if (questProgress >= questGoal) {
+      claimBtn.classList.remove("hidden");
+    } else {
+      claimBtn.classList.add("hidden");
+      completeMsg.classList.add("hidden");
+    }
+  }
+</script>
+
+</body>
+</html>
