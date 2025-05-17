@@ -6,6 +6,15 @@
   --space-light: #164650;
 }
 
+/* Temel body ve html ayarları (scroll engelleme ve tam ekran için) */
+html, body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden; /* Kaymayı engelle */
+  width: 100vw;     /* Viewport genişliği */
+  height: 100vh;    /* Viewport yüksekliği */
+}
+
 body {
   overflow: hidden; /* Three.js canvas için optimize */
   perspective: 1000px; /* 3D efektler için */
@@ -16,6 +25,10 @@ body {
   position: relative;
   mix-blend-mode: screen; /* Neon efektler için */
   backdrop-filter: blur(2px); /* Arka planı hafif bulanıklaştır */
+
+  max-width: 100vw;
+  max-height: 100vh;
+  overflow: hidden;
 }
 
 /* 3. BUTONLARDA PARTİKÜL EFECT */
