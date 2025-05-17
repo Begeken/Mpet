@@ -1,9 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>PetMiner</title>
+<link rel="stylesheet" href="style.css">
 <style>
   @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css');
 
@@ -107,9 +109,9 @@
   nav button {
     background: transparent;
     color: #33cccc;
-    font-size: 0.9rem; /* Daha küçük font boyutu */
-    padding: 8px 15px; /* Daha küçük padding */
-    border-radius: 8px; /* Daha küçük border radius */
+    font-size: 0.9rem;
+    padding: 8px 15px;
+    border-radius: 8px;
     box-shadow:
       0 0 8px #33cccc,
       0 0 15px #33cccc;
@@ -117,11 +119,11 @@
     align-items: center;
     gap: 5px;
     transition: 0.3s;
-    min-width: 80px; /* Minimum genişlik */
+    min-width: 80px;
   }
 
   nav button i {
-    font-size: 0.9rem; /* İkon boyutunu küçült */
+    font-size: 0.9rem;
   }
 
   nav button:hover {
@@ -156,7 +158,6 @@
     }
   }
 
-  /* SAYFA GEÇİŞLERİ İÇİN YENİ CSS */
   .page {
     display: none;
     animation: fadeIn 0.5s ease;
@@ -181,7 +182,110 @@
     color: #88ffff;
     font-size: 1.2rem;
   }
+
+  /* Quest Container Stilleri */
+  .quest-container {
+    background: rgba(15, 44, 49, 0.3);
+    border-radius: 15px;
+    padding: 20px;
+    margin: 20px 0;
+    border: 1px solid #33cccc;
+    box-shadow: 0 0 15px rgba(51, 204, 204, 0.3);
+  }
+
+  .quest-container h3 {
+    color: #55ffff;
+    margin-top: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
+
+  .quest-progress {
+    margin: 15px 0;
+    font-size: 1.1rem;
+  }
+
+  .progress-bar {
+    width: 100%;
+    height: 10px;
+    background: #0f2b31;
+    border-radius: 5px;
+    margin: 10px 0;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #33cccc, #33eeee);
+    width: 0%;
+    transition: width 0.5s ease;
+  }
+
+.earn-options {
+  display: flex;                 /* esnek kutu */
+  flex-direction: row;           /* yan yana */
+  justify-content: center;       /* yatayda ortala */
+  align-items: center;           /* dikey ortala (opsiyonel) */
+  gap: 12px;                     /* butonlar arası boşluk */
+  margin: 20px auto 0;           /* üstten boşluk, yatayda otomatik ortala */
+  width: 90%;                    /* ebeveyn genişliğinin %90’ını kullan */
+  max-width: 380px;              /* Daily Quest ile uyumlu en fazla genişlik */
+  flex-wrap: wrap;               /* taşarsa alt satıra geçsin */
+  }
+
+  .earn-option {
+    width: 100%;
+    padding: 15px;
+    font-size: 1.2rem;
+  }
+
+  .hidden {
+    display: none;
+  }
+
+  .pulse-effect {
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0% { opacity: 0.7; }
+    50% { opacity: 1; }
+    100% { opacity: 0.7; }
+  }
 </style>
+<style>
+  /* ====== SAYFAYA ÖZEL KÜÇÜK DÜZELTMELER ====== */
+
+  /* 1) Earn sayfasını tam ortala */
+  #earnPage {
+    display: flex !important;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* 2) Home’da quest ve earn buton grubunu gizle */
+  #homePage .quest-container,
+  #homePage .earn-options {
+    display: none !important;
+  }
+
+  /* 3) Daily Quest başlığını biraz küçült */
+  #earnPage .quest-container h3 {
+    font-size: 1.1rem !important;
+  }
+
+  /* 4) Watch Ad / Bonus Tasks yazısındaki üç noktayı kaldırıp tek satır görünmesini sağla */
+  #earnPage .earn-option {
+    white-space: nowrap !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    min-width: 200px; /* İstersen burayı 180–220 arası oynatabilirsin */
+  }
+</style>
+
 </head>
 <body>
 
@@ -192,29 +296,41 @@
 
   <!-- SAYFALAR -->
   <div id="homePage" class="page active">
-    <button id="farmButton">Farm ⛏️</button>
+    <button id="farmButton" type="button">Farm ⛏️</button>
     <div id="coinDisplay">Mpet: 0</div>
     <div id="message"></div>
   </div>
 
   <div id="earnPage" class="page">
-  <h2>Earn Mpet</h2>
-  <p>Complete challenges to earn more Mpet!</p>
-  
-  <div class="earn-options">
-    <button class="earn-option"><i class="fas fa-ad"></i> Watch Ad</button>
-    <button class="earn-option"><i class="fas fa-tasks"></i> Daily Quest</button>
-  </div>
+    <h2>Earn Mpet</h2>
+    <p>Complete challenges to earn more Mpet!</p>
 
-  <!-- Daily Quest Card -->
-  <div id="daily-quest" class="card neon-glow mt-4 p-4 rounded-xl text-white text-center shadow-xl backdrop-blur-sm">
-    <h2 class="text-2xl font-bold mb-2">🎯 Daily Quest</h2>
-    <p class="mb-2">Mine actions: <span id="quest-progress">0</span>/3</p>
-    <button id="claim-reward" class="btn bg-green-500 hover:bg-green-600 px-4 py-2 rounded-full text-white mt-2 hidden">
-      🎁 Claim Reward
-    </button>
-    <p id="quest-complete-msg" class="text-green-400 mt-2 hidden">Congrats! Quest completed 🎉</p>
-  </div>
+    <!-- Tekilleştirilmiş Daily Quest Bölümü -->
+    <div class="quest-container">
+      <h3><i class="fas fa-medal"></i> Daily Quest</h3>
+      <div class="quest-progress">
+        <span id="quest-count">0</span>/3 Mines
+        <div class="progress-bar">
+          <div id="quest-progress" class="progress-fill"></div>
+        </div>
+      </div>
+      <button id="claim-btn" class="neon-button" disabled>
+        <i class="fas fa-gift"></i> Claim 25 MPET
+      </button>
+      <p id="quest-complete" class="hidden pulse-effect">
+        <i class="fas fa-check-circle"></i> Reward claimed!
+      </p>
+    </div>
+
+    <!-- Tekilleştirilmiş Diğer Seçenekler -->
+ <div class="earn-options">
+  <button id="watchAdBtn" class="earn-option neon-button">
+    <i class="fas fa-ad"></i> Watch Ad (+10 MPET)
+  </button>
+  <button id="bonusTasksBtn" class="earn-option neon-button">
+    <i class="fas fa-star"></i> Bonus Tasks
+  </button>
+</div>
 </div>
 
   <div id="frensPage" class="page">
@@ -233,7 +349,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/three@0.150.1/build/three.min.js"></script>
 <script>
-  // -------- ARKA PLAN ANİMASYONU (Aynen Korundu) --------
+  // -------- ARKA PLAN ANİMASYONU --------
   const canvas = document.getElementById('bgCanvas');
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
   renderer.setSize(window.innerWidth, window.innerHeight);
@@ -460,139 +576,126 @@
 
   // Update countdown every second
   setInterval(updateUI, 1000);
-</script>
-  // Daily Quest Logic (Frontend JS)
 
-  const questGoal = 3;
-  let questProgress = 0;
-  let lastReset = localStorage.getItem("dailyQuestDate");
-  let today = new Date().toDateString();
+  // -------- DAILY QUEST LOGIC --------
+  const QUEST_KEY = 'dailyQuest';
+  const questCount = document.getElementById('quest-count');
+  const questProgressBar = document.getElementById('quest-progress');
+  const claimBtn = document.getElementById('claim-btn');
+  const questComplete = document.getElementById('quest-complete');
 
-  if (lastReset !== today) {
-    questProgress = 0;
-    localStorage.setItem("dailyQuestProgress", 0);
-    localStorage.setItem("dailyQuestDate", today);
-  } else {
-    questProgress = parseInt(localStorage.getItem("dailyQuestProgress")) || 0;
+  function getQuestData() {
+    const data = JSON.parse(localStorage.getItem(QUEST_KEY)) || {
+      date: new Date().toDateString(),
+      count: 0,
+      claimed: false
+    };
+
+    // Eğer yeni güne girilmişse sıfırla
+    if (data.date !== new Date().toDateString()) {
+      data.count = 0;
+      data.claimed = false;
+      data.date = new Date().toDateString();
+      localStorage.setItem(QUEST_KEY, JSON.stringify(data));
+    }
+
+    return data;
   }
 
-  window.addEventListener("DOMContentLoaded", () => {
-    updateQuestUI();
-// ---- DAILY QUEST LOGIC ----
-const QUEST_KEY = 'dailyQuest';
-const questProgressSpan = document.getElementById('quest-progress');
-const claimBtn = document.getElementById('claim-reward');
-const questCompleteMsg = document.getElementById('quest-complete-msg');
-
-function getQuestData() {
-  const data = JSON.parse(localStorage.getItem(QUEST_KEY)) || {
-    date: new Date().toDateString(),
-    count: 0,
-    claimed: false
-  };
-
-  // Eğer yeni güne girilmişse sıfırla
-  if (data.date !== new Date().toDateString()) {
-    data.count = 0;
-    data.claimed = false;
-    data.date = new Date().toDateString();
+  function saveQuestData(data) {
     localStorage.setItem(QUEST_KEY, JSON.stringify(data));
   }
 
-  return data;
-}
+  function updateQuestUI() {
+    const data = getQuestData();
+    questCount.textContent = data.count;
+    questProgressBar.style.width = `${(data.count / 3) * 100}%`;
 
-function saveQuestData(data) {
-  localStorage.setItem(QUEST_KEY, JSON.stringify(data));
-}
-
-function updateQuestUI() {
-  const data = getQuestData();
-  questProgressSpan.textContent = data.count;
-
-  if (data.count >= 3) {
-    if (data.claimed) {
-      claimBtn.classList.add('hidden');
-      questCompleteMsg.classList.remove('hidden');
+    if (data.count >= 3) {
+      if (data.claimed) {
+        claimBtn.disabled = true;
+        claimBtn.classList.add('hidden');
+        questComplete.classList.remove('hidden');
+      } else {
+        claimBtn.disabled = false;
+        claimBtn.classList.remove('hidden');
+        questComplete.classList.add('hidden');
+      }
     } else {
-      claimBtn.classList.remove('hidden');
-      questCompleteMsg.classList.add('hidden');
+      claimBtn.disabled = true;
+      claimBtn.classList.add('hidden');
+      questComplete.classList.add('hidden');
     }
-  } else {
-    claimBtn.classList.add('hidden');
-    questCompleteMsg.classList.add('hidden');
   }
-}
 
-farmBtn.addEventListener('click', (event) => {
-  event.preventDefault(); // Sayfa kaymasını engelle
-  // Mevcut cooldown kontrolü zaten updateUI’de yapılıyor, burada quest progress artışı yapılacak
-  const data = getQuestData();
-  if (data.count < 3) {
-    data.count++;
-    saveQuestData(data);
-  }
-  updateQuestUI();
-});
-
-claimBtn.addEventListener('click', () => {
-  const data = getQuestData();
-  if (data.count >= 3 && !data.claimed) {
-    data.claimed = true;
-    const bonus = 250; // ödül miktarı
-    const current = getCoins();
-    setCoins(current + bonus);
-    message.textContent = `🎁 +${bonus} Mpet from daily quest!`;
-    saveQuestData(data);
-    updateUI();
-    updateQuestUI();
-  }
-});
-
-// Sayfa açılışında
-updateUI();
-updateQuestUI();
-
-    const farmButton = document.getElementById("farmButton");
-    if (farmButton) {
-      farmButton.addEventListener("click", () => {
-        if (questProgress < questGoal) {
-          questProgress++;
-          localStorage.setItem("dailyQuestProgress", questProgress);
-          updateQuestUI();
-        }
-      });
-    }
-
-    const claimBtn = document.getElementById("claim-reward");
-    if (claimBtn) {
-      claimBtn.addEventListener("click", () => {
-        let currentCoins = parseInt(localStorage.getItem("mpetCoins") || "0");
-        currentCoins += 20;
-        localStorage.setItem("mpetCoins", currentCoins);
-        document.getElementById("coinDisplay").innerText = `Mpet: ${currentCoins}`;
-        document.getElementById("quest-complete-msg").classList.remove("hidden");
-        document.getElementById("claim-reward").classList.add("hidden");
-      });
+  farmBtn.addEventListener('click', (event) => {
+    const data = getQuestData();
+    if (data.count < 3) {
+      data.count++;
+      saveQuestData(data);
+      updateQuestUI();
     }
   });
 
-  function updateQuestUI() {
-    const progressText = document.getElementById("quest-progress");
-    const claimBtn = document.getElementById("claim-reward");
-    const completeMsg = document.getElementById("quest-complete-msg");
-
-    if (!progressText || !claimBtn || !completeMsg) return;
-
-    progressText.innerText = questProgress;
-    if (questProgress >= questGoal) {
-      claimBtn.classList.remove("hidden");
-    } else {
-      claimBtn.classList.add("hidden");
-      completeMsg.classList.add("hidden");
+  claimBtn.addEventListener('click', () => {
+    const data = getQuestData();
+    if (data.count >= 3 && !data.claimed) {
+      data.claimed = true;
+      const bonus = 25; // ödül miktarı
+      const current = getCoins();
+      setCoins(current + bonus);
+      message.textContent = `🎁 +${bonus} Mpet from daily quest!`;
+      saveQuestData(data);
+      updateUI();
+      updateQuestUI();
     }
-  }
-</script>
+  });
 
+  // Sayfa açılışında
+  updateQuestUI();
+
+  // Telegram WebApp init
+  if (window.Telegram?.WebApp) {
+    Telegram.WebApp.expand();
+    
+    const meta = document.createElement('meta');
+    meta.name = 'viewport';
+    meta.content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover';
+    document.head.appendChild(meta);
+
+    document.body.addEventListener('touchmove', (e) => {
+      if (!e.target.classList.contains('scroll-allowed')) {
+        e.preventDefault();
+      }
+    }, { passive: false });
+  }
+// --- Earn sayfası buton işlevleri ---
+const watchAdBtn = document.getElementById('watchAdBtn');
+const bonusTasksBtn = document.getElementById('bonusTasksBtn');
+
+watchAdBtn.addEventListener('click', () => {
+  message.textContent = "🎬 Thanks for watching! +10 MPET";
+  const newCoins = getCoins() + 10;
+  setCoins(newCoins);
+  updateUI();
+  if (window.Telegram?.WebApp) {
+    Telegram.WebApp.showAlert("🎉 You earned 10 MPET!");
+  }
+});
+
+bonusTasksBtn.addEventListener('click', () => {
+  const tasks = [
+    "1) Share the game with a friend",
+    "2) Follow us on Twitter",
+    "3) Complete a survey"
+  ].join("\n");
+  if (window.Telegram?.WebApp) {
+    Telegram.WebApp.showAlert("⭐ Bonus Tasks:\n" + tasks);
+  } else {
+    alert("⭐ Bonus Tasks:\n" + tasks);
+  }
+});
+
+</script>
 </body>
 </html>
