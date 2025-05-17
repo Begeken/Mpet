@@ -1,120 +1,96 @@
-// =============== TELEGRAM WEB APP BAŞLANGIÇ ===============
-// Telegram API kontrolü
+// =============== TELEGRAM WEB APP START ===============
 if (!window.Telegram?.WebApp) {
+  // Not running inside Telegram WebApp
 } else {
-  // Telegram WebApp'i başlat
   const tgWebApp = Telegram.WebApp;
   tgWebApp.ready();
-  tgWebApp.expand(); // Tam ekran yap
-  
-  // Kullanıcı bilgilerini al
+  tgWebApp.expand();
+
   const tgUser = tgWebApp.initDataUnsafe.user;
   const tgTheme = tgWebApp.colorScheme;
-  
-  // Tema uyumunu ayarla
+
   document.documentElement.classList.toggle('dark-mode', tgTheme === 'dark');
-  
-  // Kullanıcı giriş kontrolü
+
   if (!tgUser) {
-    tgWebApp.showAlert("Lütfen Telegram'dan giriş yapın!");
+    tgWebApp.showAlert("Please log in via Telegram!");
     tgWebApp.close();
   }
 
-  // =============== TELEGRAM ÖZEL FONKSİYONLAR ===============
-  // Geri butonu kontrolü
   tgWebApp.BackButton.onClick(() => {
     showPage('home');
     tgWebApp.BackButton.hide();
   });
-  
-  // Ana buton ayarı
+
   tgWebApp.MainButton.setParams({
-    text: "BANKA YATIR",
+    text: "PLAY PETMINER",
     color: "#33cccc",
-    text_color: "#0a0f1a"
+    text_color: "#0a0f1a",
+    is_visible: true,
+    is_active: true
   }).onClick(() => {
-    tgWebApp.showPopup({
-      title: "Banka İşlemi",
-      message: "MPET coinlerinizi yatırmak istiyor musunuz?",
-      buttons: [{
-        id: "deposit",
-        type: "default",
-        text: "Onayla"
-      }]
-    });
+    window.open("https://begeken.github.io/Mpet/", "_blank");
   });
 
-  // =============== VERİ GÖNDERME ÖRNEĞİ ===============
-function sendTelegramData(data) {
-  fetch('http://localhost:3000/api/telegram', {  // Backend adresin
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      user_id: tgUser.id,
-      ...data
+  function sendTelegramData(data) {
+    fetch('http://localhost:3000/api/telegram', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        user_id: tgUser.id,
+        ...data
+      })
     })
-  })
-  .then(res => res.json())
-  .then(res => console.log('Backend cevabı:', res))
-  .catch(err => console.error('Backend hatası:', err));
-}
-
-// =============== UYGULAMA MANTIĞI (DEVAM) ===============
-let coins = localStorage.getItem('petCoins') || 0;
-const COOLDOWN = 1000 * 60 * 60 * 8; // 8 saat
-
-// Madencilik fonksiyonu (Telegram uyumlu)
-function mineCoins() {
-  if (Telegram?.WebApp && Telegram.WebApp.initDataUnsafe.user) {
-    const newCoins = coins + 10;
-    
-    // Telegram'a veri gönder
-    sendTelegramData({
-      action: "mine",
-      coins: newCoins,
-      timestamp: Date.now()
-    });
-    
-    // Haptic feedback (Titreşim)
-    if (window.navigator.vibrate) navigator.vibrate([50, 30, 50]);
+    .then(res => res.json())
+    .then(res => console.log('Backend response:', res))
+    .catch(err => console.error('Backend error:', err));
   }
-  
-  // UI güncelleme
-  updateUI();
-}
 
-// =============== TELEGRAM SPESİFİK UI ===============
-function updateUI() {
-  // Telegram'da MainButton durumunu ayarla
+  let coins = localStorage.getItem('petCoins') || 0;
+  const COOLDOWN = 1000 * 60 * 60 * 8; // 8 hours
+
+  function mineCoins() {
+    if (Telegram?.WebApp && Telegram.WebApp.initDataUnsafe.user) {
+      const newCoins = Number(coins) + 10;
+
+      sendTelegramData({
+        action: "mine",
+        coins: newCoins,
+        timestamp: Date.now()
+      });
+
+      if (window.navigator.vibrate) navigator.vibrate([50, 30, 50]);
+    }
+
+    updateUI();
+  }
+
+  function updateUI() {
+    if (Telegram?.WebApp) {
+      Telegram.WebApp.MainButton.setParams({
+        is_visible: coins > 100,
+        is_active: coins > 100
+      });
+    }
+  }
+
+  function setupShareButton() {
+    if (Telegram?.WebApp) {
+      const shareBtn = document.createElement('button');
+      shareBtn.innerHTML = '<i class="fas fa-share"></i> Invite a Friend';
+      shareBtn.onclick = () => {
+        Telegram.WebApp.shareLink(
+          `https://t.me/${Telegram.WebApp.initDataUnsafe.user.username}?startapp=petminer`,
+          { title: "Join PetMiner!" }
+        );
+      };
+      document.querySelector('nav').appendChild(shareBtn);
+    }
+  }
+
   if (Telegram?.WebApp) {
-    Telegram.WebApp.MainButton.setParams({
-      is_visible: coins > 100,
-      is_active: coins > 100
-    });
+    setupShareButton();
+    updateUI();
+  } else {
+    console.warn("Running outside Telegram");
   }
-  
-  // Diğer UI güncellemeleri...
-}
-
-// =============== TELEGRAM PAYLAŞIM BUTONU ===============
-function setupShareButton() {
-  if (Telegram?.WebApp) {
-    const shareBtn = document.createElement('button');
-    shareBtn.innerHTML = '<i class="fas fa-share"></i> Arkadaşını Davet Et';
-    shareBtn.onclick = () => {
-      Telegram.WebApp.shareLink(
-        `https://t.me/${Telegram.WebApp.initDataUnsafe.user.username}?startapp=petminer`,
-        { title: "PetMiner'a Katıl!" }
-      );
-    };
-    document.querySelector('nav').appendChild(shareBtn);
-  }
-}
-
-// Uygulama başlangıcı
-if (Telegram?.WebApp) {
-  setupShareButton();
-  updateUI();
-} else {
-  console.warn("Telegram dışında çalışıyor");
 }
