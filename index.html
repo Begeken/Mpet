@@ -230,7 +230,7 @@
   align-items: center;           /* dikey ortala (opsiyonel) */
   gap: 12px;                     /* butonlar arası boşluk */
   margin: 20px auto 0;           /* üstten boşluk, yatayda otomatik ortala */
-  width: 90%;                    /* ebeveyn genişliğinin %90’ını kullan */
+  width: 90%;                    /* ebeveyn genişliğinin %90'ını kullan */
   max-width: 380px;              /* Daily Quest ile uyumlu en fazla genişlik */
   flex-wrap: wrap;               /* taşarsa alt satıra geçsin */
   }
@@ -266,7 +266,7 @@
     justify-content: center;
   }
 
-  /* 2) Home’da quest ve earn buton grubunu gizle */
+  /* 2) Home'da quest ve earn buton grubunu gizle */
   #homePage .quest-container,
   #homePage .earn-options {
     display: none !important;
@@ -323,15 +323,24 @@
     </div>
 
     <!-- Tekilleştirilmiş Diğer Seçenekler -->
- <div class="earn-options">
-  <button id="watchAdBtn" class="earn-option neon-button">
-    <i class="fas fa-ad"></i> Watch Ad (+10 MPET)
-  </button>
-  <button id="bonusTasksBtn" class="earn-option neon-button">
-    <i class="fas fa-star"></i> Bonus Tasks
-  </button>
-</div>
-</div>
+    <div class="earn-options">
+      <button id="watchAdBtn" class="earn-option neon-button">
+        <i class="fas fa-ad"></i> Watch Ad (+10 MPET)
+      </button>
+      <button id="bonusTasksBtn" class="earn-option neon-button">
+        <i class="fas fa-star"></i> Bonus Tasks
+      </button>
+    </div>
+  </div>
+
+  <div id="walletPage" class="page">
+    <h2>Your Wallet</h2>
+    <p>View your Mpet balance, transactions and more.</p>
+    <div class="wallet-info">
+      <p><strong>Total Mpet:</strong> <span id="walletMpet">0</span></p>
+      <p><strong>Last Claimed:</strong> <span id="lastClaim">-</span></p>
+    </div>
+  </div>
 
   <div id="frensPage" class="page">
     <h2>Your Frens</h2>
@@ -344,6 +353,7 @@
     <button id="homeBtn"><i class="fas fa-home"></i> Home</button>
     <button id="earnBtn"><i class="fas fa-coins"></i> Earn</button>
     <button id="frensBtn"><i class="fas fa-users"></i> Frens</button>
+    <button id="walletBtn"><i class="fas fa-wallet"></i> Wallet</button>
   </nav>
 </div>
 
@@ -485,6 +495,7 @@
   const homeBtn = document.getElementById('homeBtn');
   const earnBtn = document.getElementById('earnBtn');
   const frensBtn = document.getElementById('frensBtn');
+  const walletBtn = document.getElementById('walletBtn');
 
   const COINS_PER_FARM = 100;
   const FARM_COOLDOWN = 1000 * 60 * 60 * 8; // 8 hours
@@ -547,7 +558,8 @@
   const pages = {
     home: document.getElementById('homePage'),
     earn: document.getElementById('earnPage'),
-    frens: document.getElementById('frensPage')
+    frens: document.getElementById('frensPage'),
+    wallet: document.getElementById('walletPage')
   };
 
   function showPage(page) {
@@ -563,12 +575,14 @@
     homeBtn.disabled = (page === 'home');
     earnBtn.disabled = (page === 'earn');
     frensBtn.disabled = (page === 'frens');
+    walletBtn.disabled = (page === 'wallet');
   }
 
   // Buton eventleri
   homeBtn.addEventListener('click', () => showPage('home'));
   earnBtn.addEventListener('click', () => showPage('earn'));
   frensBtn.addEventListener('click', () => showPage('frens'));
+  walletBtn.addEventListener('click', () => showPage('wallet'));
 
   // Başlangıçta Home sayfasını göster
   showPage('home');
@@ -669,33 +683,34 @@
       }
     }, { passive: false });
   }
-// --- Earn sayfası buton işlevleri ---
-const watchAdBtn = document.getElementById('watchAdBtn');
-const bonusTasksBtn = document.getElementById('bonusTasksBtn');
 
-watchAdBtn.addEventListener('click', () => {
-  message.textContent = "🎬 Thanks for watching! +10 MPET";
-  const newCoins = getCoins() + 10;
-  setCoins(newCoins);
-  updateUI();
-  if (window.Telegram?.WebApp) {
-    Telegram.WebApp.showAlert("🎉 You earned 10 MPET!");
-  }
-});
+  // --- Earn sayfası buton işlevleri ---
+  const watchAdBtn = document.getElementById('watchAdBtn');
+  const bonusTasksBtn = document.getElementById('bonusTasksBtn');
 
-bonusTasksBtn.addEventListener('click', () => {
-  const tasks = [
-    "1) Share the game with a friend",
-    "2) Follow us on Twitter",
-    "3) Complete a survey"
-  ].join("\n");
-  if (window.Telegram?.WebApp) {
-    Telegram.WebApp.showAlert("⭐ Bonus Tasks:\n" + tasks);
-  } else {
-    alert("⭐ Bonus Tasks:\n" + tasks);
-  }
-});
+  watchAdBtn.addEventListener('click', () => {
+    message.textContent = "🎬 Thanks for watching! +10 MPET";
+    const newCoins = getCoins() + 10;
+    setCoins(newCoins);
+    updateUI();
+    if (window.Telegram?.WebApp) {
+      Telegram.WebApp.showAlert("🎉 You earned 10 MPET!");
+    }
+  });
 
+  bonusTasksBtn.addEventListener('click', () => {
+    const tasks = [
+      "1) Share the game with a friend",
+      "2) Follow us on Twitter",
+      "3) Complete a survey"
+    ].join("\n");
+    if (window.Telegram?.WebApp) {
+      Telegram.WebApp.showAlert("⭐ Bonus Tasks:\n" + tasks);
+    } else {
+      alert("⭐ Bonus Tasks:\n" + tasks);
+    }
+  });
 </script>
+
 </body>
 </html>
