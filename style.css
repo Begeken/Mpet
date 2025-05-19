@@ -3,6 +3,9 @@
     --neon-blue: #33cccc;
     --neon-pink: #ff3377;
     --space-dark: #0a0f1a;
+    /* CSS değişkeni olarak RGB değerlerini de tanımlayabiliriz, box-shadow'da kullanmak için */
+    --neon-blue-rgb: 51, 204, 204;
+    --neon-pink-rgb: 255, 51, 119;
 }
 
 /* Scroll ve pozisyon kilitleri */
@@ -29,22 +32,18 @@ body {
     padding: 20px 20px 80px !important; /* Alt menü için daha fazla boşluk */
     margin: 0;
     text-align: center; /* Ana içerik (button vb.) ortada dursun */
-    /* Arka plan animasyonunun tam ekran görünmesi için body'nin arka plan rengini
-       veya #uiContainer'ın arka planını animasyonla uyumlu yapabiliriz.
-       Şimdilik animasyonun kendi arka planı var. */
 }
 
 /* Üst neon UI kapsayıcısı */
 #uiContainer {
     position: relative;
     z-index: 10;
-    mix-blend-mode: screen; /* Bu, arka plan animasyonuyla ilginç etkileşimler yaratabilir, istenmiyorsa normal yapın */
+    mix-blend-mode: screen; 
     backdrop-filter: blur(2px);
-    min-height: calc(100vh - 80px); /* Alt menü yüksekliğini hesaba kat, body padding'i ile birlikte değerlendirilmeli */
+    min-height: calc(100vh - 80px); 
     display: flex;
     flex-direction: column;
-    align-items: center; /* İçindeki öğeleri yatayda ortala (bu .page için de geçerli olabilir) */
-    /* justify-content: center; */ /* Eğer tüm UI dikeyde de ortalanacaksa eklenebilir */
+    align-items: center; 
 }
 
 /* Butonlar - neon partikül efektli */
@@ -59,7 +58,7 @@ button::after {
     position: absolute; top: -50%; left: -50%;
     width: 200%; height: 200%;
     background: radial-gradient(circle,
-        rgba(51,204,204,0.8) 0%,
+        rgba(var(--neon-blue-rgb), 0.8) 0%, /* CSS değişkeni kullanıldı */
         transparent 70%);
     transform: scale(0);
     opacity: 0;
@@ -75,9 +74,9 @@ h1 {
     background: linear-gradient(90deg, var(--neon-blue), #a0ffff, var(--neon-blue));
     -webkit-background-clip: text; background-clip: text;
     color: transparent;
-    -webkit-text-stroke: 1px rgba(51,204,204,0.3);
+    -webkit-text-stroke: 1px rgba(var(--neon-blue-rgb), 0.3); /* CSS değişkeni kullanıldı */
     margin-top: 0;
-    /* margin-bottom: 10px; */ /* YENİ/GÜNCELLENMİŞ: Başlığın alt boşluğunu azalttık */
+    margin-bottom: 20px; /* Ana başlık için genel bir alt boşluk */
 }
 
 /* Sayfa geçiş animasyonu */
@@ -86,10 +85,9 @@ h1 {
     animation: pageEnter 0.6s forwards;
     transition: opacity 0.3s ease, transform 0.3s ease;
     width: 100%;
-    display: none; /* Başlangıçta tüm sayfalar gizli */
+    display: none; 
     flex-direction: column;
     align-items: center;
-    /* justify-content: center; */ /* Sayfa içeriğini dikeyde ortalamak için eklenebilir */
 }
 .page:not(.active) {
     opacity: 0;
@@ -100,25 +98,20 @@ h1 {
     left: 0;
 }
 .page.active {
-    display: flex; /* Aktif sayfa flex olarak gösterilir */
-    /* YENİ EKLENDİ: #homePage içeriğinin dikeyde daha iyi konumlanması için */
-    /* justify-content: center; */ /* Bu, tüm #homePage içeriğini dikey ortalar. İsteğe bağlı. */
-                                 /* Eğer sadece belirli elemanları itmek istiyorsak margin kullanmak daha iyi. */
-    /* padding-top: 5vh; */ /* Sayfanın tepeden biraz boşlukla başlaması için, isteğe bağlı */
+    display: flex; 
 }
 @keyframes pageEnter {
     from { opacity:0; transform:rotateX(15deg) translateY(20px); }
     to   { opacity:1; transform:rotateX(0)   translateY(0); }
 }
 
-/* Coin puls efekti & YENİ KONUMLANDIRMA */
+/* Coin puls efekti & Konumlandırma */
 #coinDisplay {
     animation: coinPulse 3s infinite;
-    /* margin: 20px 0; */ /* Eski margin */
-    margin-top: 30px;  /* YENİ/GÜNCELLENMİŞ: Farm bölümüyle arasındaki boşluğu artırarak aşağı kaydırıyoruz. */
-    margin-bottom: 20px; /* YENİ/GÜNCELLENMİŞ: Alt tarafta da biraz boşluk bırakalım. */
-    /* Font boyutu ve diğer stiller index.html içindeki inline style'dan gelebilir veya buraya taşınabilir.
-       Eğer index.html'de #coinDisplay için inline style varsa, bu margin değerleri onu ezecektir. */
+    margin-top: 30px; 
+    margin-bottom: 20px; 
+    /* Font boyutu ve diğer stiller index.html içindeki inline style'dan gelebilir veya buraya taşınabilir. */
+    /* Eğer index.html'de #coinDisplay için inline style varsa, bu margin değerleri onu ezecektir. */
 }
 @keyframes coinPulse {
     0%,100% { transform: scale(1); }
@@ -182,7 +175,7 @@ h1 {
 
 .tab-button:disabled {
     color: #55ffff;
-    background: rgba(51, 204, 204, 0.2);
+    background: rgba(var(--neon-blue-rgb), 0.2); /* CSS değişkeni kullanıldı */
     transform: none;
     cursor: default;
 }
@@ -203,8 +196,8 @@ h1 {
     margin: 20px auto;
     max-width: 320px;
     text-align: center;
-    box-shadow: 0 0 15px rgba(51,204,204,0.4),
-                inset 0 0 10px rgba(51,204,204,0.2);
+    box-shadow: 0 0 15px rgba(var(--neon-blue-rgb), 0.4), /* CSS değişkeni kullanıldı */
+                inset 0 0 10px rgba(var(--neon-blue-rgb), 0.2); /* CSS değişkeni kullanıldı */
     backdrop-filter: blur(6px);
 }
 
@@ -222,7 +215,7 @@ h1 {
 .progress-bar {
     width: 100%;
     height: 8px;
-    background: rgba(51,204,204,0.15);
+    background: rgba(var(--neon-blue-rgb), 0.15); /* CSS değişkeni kullanıldı */
     border-radius: 10px;
     overflow: hidden;
     margin: 10px 0;
@@ -232,44 +225,6 @@ h1 {
     width: 0%;
     background: linear-gradient(90deg, var(--neon-blue), var(--neon-pink));
     transition: width 0.7s ease;
-}
-
-/* Mobil uyumluluk */
-@media (max-width: 480px) {
-    body {
-        padding: 15px 15px 70px !important;
-    }
-
-    .tabs {
-        padding: 10px 0;
-    }
-
-    .tab-button {
-        padding: 6px 10px;
-        font-size: 0.75rem;
-        min-width: 50px;
-    }
-
-    .tab-button i {
-        font-size: 1.1rem;
-    }
-
-    .tab-text {
-        font-size: 0.6rem;
-    }
-
-    .quest-container {
-        max-width: 280px;
-        padding: 15px;
-    }
-
-    .quest-container h3 {
-        font-size: 1rem;
-    }
-
-    #uiContainer {
-        min-height: calc(100vh - 70px);
-    }
 }
 
 /* Telegram Paylaş Butonu */
@@ -300,13 +255,9 @@ h1 {
 #miningContainer {
     display: flex;
     flex-direction: column;
-    align-items: center; /* Yatayda ortala (zaten vardı) */
-    /* margin-bottom: 10px; */ /* Eski MPET ile boşluk */
-    
-    /* YENİ/GÜNCELLENMİŞ: Konumlandırma için */
-    margin-top: 15vh; /* Sayfanın üstünden veya bir önceki elemandan olan boşluğu artırarak 
-                         daha ortaya çekiyoruz. Bu değeri artırıp azaltarak dikey konumu ayarlayın. */
-    margin-bottom: 20px; /* MPET yazısıyla arasındaki boşluk */
+    align-items: center; 
+    margin-top: 15vh; 
+    margin-bottom: 20px; 
 }
 
 #farmButton {
@@ -331,151 +282,83 @@ h1 {
 
 .cooldown-badge {
     background-color: rgba(0, 0, 0, 0.5);
-    color: #ff3377; 
+    color: var(--neon-pink); /* CSS değişkeni kullanıldı */
     padding: 8px 15px;
     border-radius: 8px;
     font-size: 1rem;
     margin-top: 5px; 
-    text-shadow: 0 0 5px #ff3377, 0 0 10px #ff3377; 
+    text-shadow: 0 0 5px var(--neon-pink), 0 0 10px var(--neon-pink); 
 }
 
 /* FARM BUTONU INACTIVE STİLİ */
 #farmButton.inactive {
     opacity: 0.6; 
     box-shadow: none; 
-    /* cursor: wait; */ /* cursor: wait; şeklinde olmalı, eğer bir imleç istiyorsanız */
+    cursor: wait; 
 }
+
 /* Günlük Görevler Modalı Stilleri */
 .daily-tasks-modal-overlay {
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+    top: 0; left: 0; width: 100%; height: 100%;
     background: rgba(0, 0, 0, 0.5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    display: flex; justify-content: center; align-items: center;
     z-index: 1000;
 }
-
 .daily-tasks-modal {
-    background: #0f2b31;
-    color: #55ffff;
-    padding: 20px;
-    border-radius: 15px;
-    box-shadow: 0 0 20px #33cccc;
-    text-align: left;
-    width: 80%;
-    max-width: 500px;
+    background: #0f2b31; color: #55ffff; padding: 20px;
+    border-radius: 15px; box-shadow: 0 0 20px var(--neon-blue); /* CSS değişkeni kullanıldı */
+    text-align: left; width: 80%; max-width: 500px;
 }
-
 .daily-tasks-modal h3 {
-    color: #a0ffff;
-    margin-top: 0;
-    margin-bottom: 15px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
+    color: #a0ffff; margin-top: 0; margin-bottom: 15px;
+    display: flex; align-items: center; gap: 10px;
 }
-
-.daily-tasks-modal ul {
-    list-style: none;
-    padding: 0;
-    margin-bottom: 20px;
-}
-
+.daily-tasks-modal ul { list-style: none; padding: 0; margin-bottom: 20px; }
 .daily-tasks-modal li {
-    padding: 10px 0;
-    border-bottom: 1px solid #33cccc;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    padding: 10px 0; border-bottom: 1px solid var(--neon-blue); /* CSS değişkeni kullanıldı */
+    display: flex; justify-content: space-between; align-items: center;
 }
-
-.daily-tasks-modal li:last-child {
-    border-bottom: none;
-}
-
-.daily-tasks-modal li i {
-    margin-right: 10px;
-    color: #33cccc;
-}
-
+.daily-tasks-modal li:last-child { border-bottom: none; }
+.daily-tasks-modal li i { margin-right: 10px; color: var(--neon-blue); /* CSS değişkeni kullanıldı */ }
 .task-button {
-    background: linear-gradient(90deg, #164650, #0f2b31);
-    color: #55ffff;
-    border: none;
-    border-radius: 8px;
-    padding: 8px 15px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
+    background: linear-gradient(90deg, #164650, #0f2b31); color: #55ffff;
+    border: none; border-radius: 8px; padding: 8px 15px;
+    cursor: pointer; transition: background-color 0.3s ease;
 }
-
 .task-button:hover:not(:disabled) {
-    background: linear-gradient(90deg, #33eeee, #33cccc);
+    background: linear-gradient(90deg, #33eeee, var(--neon-blue)); /* CSS değişkeni kullanıldı */
     color: #aaffff;
 }
-
-.task-button:disabled {
-    background-color: #222;
-    color: #555;
-    cursor: not-allowed;
-}
-
+.task-button:disabled { background-color: #222; color: #555; cursor: not-allowed; }
 .daily-tasks-modal .close-btn {
-    background: #ff3377;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    padding: 10px 20px;
-    cursor: pointer;
-    font-size: 1rem;
-    transition: background-color 0.3s ease;
+    background: var(--neon-pink); color: white; /* CSS değişkeni kullanıldı */
+    border: none; border-radius: 8px; padding: 10px 20px;
+    cursor: pointer; font-size: 1rem; transition: background-color 0.3s ease;
     margin-top: 15px;
 }
+.daily-tasks-modal .close-btn:hover { background: #ff6699; }
 
-.daily-tasks-modal .close-btn:hover {
-    background: #ff6699;
-}
-.vip-modal .modal-buttons {
-    display: flex;
-    justify-content: space-around;
-    margin-top: 20px;
-}
+/* VIP Modal Stilleri */
+.vip-modal .modal-buttons { display: flex; justify-content: space-around; margin-top: 20px; }
+.vip-modal .modal-buttons button { padding: 10px 20px; border-radius: 8px; cursor: pointer; border: none; font-size: 1rem; }
+.vip-modal .modal-buttons .confirm-btn { background-color: var(--neon-blue); color: white; }
+.vip-modal .modal-buttons .close-btn { background-color: #ccc; color: #333; }
 
-.vip-modal .modal-buttons button {
-    padding: 10px 20px;
-    border-radius: 8px;
-    cursor: pointer;
-    border: none;
-    font-size: 1rem;
-}
 
-.vip-modal .modal-buttons .confirm-btn {
-    background-color: var(--neon-blue);
-    color: white;
-}
-
-.vip-modal .modal-buttons .close-btn {
-    background-color: #ccc;
-    color: #333;
-}
 /* Günlük Giriş Bonusu Stilleri */
 #dailyBonusContainer {
-    margin-top: 25px; /* Diğer elementlerle arasına boşluk */
+    margin-top: 25px; 
     margin-bottom: 20px;
     padding: 15px;
-    background-color: rgba(10, 25, 40, 0.7); /* Temanıza uygun yarı saydam bir arka plan */
+    background-color: rgba(10, 25, 40, 0.7); 
     border-radius: 10px;
-    border: 1px solid var(--neon-blue); /* Temanızdaki neon mavi */
-    box-shadow: 0 0 10px rgba(var(--neon-blue-rgb, 51, 204, 204), 0.3); /* Neon parlama efekti için (CSS değişkeni tanımlıysa) */
+    border: 1px solid var(--neon-blue); 
+    box-shadow: 0 0 10px rgba(var(--neon-blue-rgb), 0.3); 
     text-align: center;
 }
-
 #claimDailyBonusBtn {
-    /* Mevcut buton stillerinizden bazılarını miras alabilir veya özel stil verebilirsiniz */
-    background: linear-gradient(90deg, var(--neon-pink), #ff66a3); /* Temanızdaki neon pembe tonları */
+    background: linear-gradient(90deg, var(--neon-pink), #ff66a3); 
     color: white;
     padding: 12px 25px;
     font-size: 1.1rem;
@@ -486,111 +369,230 @@ h1 {
     transition: all 0.3s ease;
     box-shadow: 0 0 8px var(--neon-pink);
 }
-
 #claimDailyBonusBtn:hover:not(:disabled) {
     background: linear-gradient(90deg, #ff66a3, var(--neon-pink));
     box-shadow: 0 0 15px var(--neon-pink), 0 0 25px var(--neon-pink);
     transform: scale(1.05);
 }
-
 #claimDailyBonusBtn:disabled {
-    background: #444; /* Devre dışı buton rengi */
+    background: #444; 
     color: #888;
     cursor: not-allowed;
     opacity: 0.7;
     box-shadow: none;
     transform: none;
 }
-
 #dailyBonusMessage {
     font-size: 0.95rem;
     margin-top: 12px;
-    color: var(--neon-blue); /* Mesaj rengi */
-    min-height: 20px; /* Mesaj alanı için minimum yükseklik */
+    color: var(--neon-blue); 
+    min-height: 20px; 
 }
+
 /* Liderlik Tablosu Sayfası Stilleri */
 #leaderboardPage {
     padding: 20px;
     text-align: center;
-    width: 100%; /* Sayfanın tam genişlikte olmasını sağlar */
-    box-sizing: border-box; /* Padding'in genişliği etkilememesi için */
+    width: 100%; 
+    box-sizing: border-box; 
 }
-
 #leaderboardPage h2 {
-    color: var(--neon-pink); /* :root altında tanımlı değişkeninizi kullanır */
-    margin-top: 10px; /* Başlığın üst boşluğu */
-    margin-bottom: 15px; /* Başlığın alt boşluğu */
-    font-size: 1.8rem; /* Başlık font boyutu, isteğe bağlı */
+    color: var(--neon-pink); 
+    margin-top: 10px; 
+    margin-bottom: 15px; 
+    font-size: 1.8rem; 
 }
-
 #leaderboardPage p {
-    color: var(--neon-blue); /* :root altında tanımlı değişkeninizi kullanır */
+    color: var(--neon-blue); 
     margin-bottom: 25px;
     font-size: 1rem;
 }
-
 #fullLeaderboardList {
     list-style: none;
     padding: 0;
-    margin: 0 auto; /* Listeyi yatayda ortalar */
-    max-width: 450px; /* Listenin maksimum genişliği, mobil için de düşünülmeli */
-    /* max-height: 60vh; */ /* Eğer liste çok uzarsa ve kaydırma istenirse */
-    /* overflow-y: auto; */ /* Eğer max-height kullanılırsa kaydırma çubuğu */
+    margin: 0 auto; 
+    max-width: 450px; 
 }
-
 #fullLeaderboardList li {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 10px 15px;
-    background-color: rgba(10, 25, 40, 0.6); /* Hafif transparan koyu arka plan */
-    border-bottom: 1px solid rgba(51, 204, 204, 0.2); /* var(--neon-blue) ile uyumlu */
-    border-radius: 6px; /* Hafif yuvarlak köşeler */
-    margin-bottom: 10px; /* Liste elemanları arası boşluk */
-    color: #f0f0f0; /* Genel metin rengi */
+    background-color: rgba(10, 25, 40, 0.6); 
+    border-bottom: 1px solid rgba(var(--neon-blue-rgb), 0.2); 
+    border-radius: 6px; 
+    margin-bottom: 10px; 
+    color: #f0f0f0; 
     font-size: 0.95rem;
 }
-
 #fullLeaderboardList li:last-child {
-    border-bottom: none; /* Son elemanın altındaki çizgiyi kaldır */
+    border-bottom: none; 
 }
-
 #fullLeaderboardList .rank {
     font-weight: bold;
     color: var(--neon-blue);
     margin-right: 15px;
-    min-width: 35px; /* Sıra numaraları için yer ayırır */
+    min-width: 35px; 
     text-align: left;
 }
-
 #fullLeaderboardList .name {
-    flex-grow: 1; /* İsmin kalan alanı doldurmasını sağlar */
-    text-align: left; /* İsimleri sola yaslar */
+    flex-grow: 1; 
+    text-align: left; 
     margin-left: 5px;
-    color: #ffffff; /* İsim rengi */
+    color: #ffffff; 
 }
-
 #fullLeaderboardList .score {
     font-weight: bold;
-    color: var(--neon-pink); /* Skoru farklı bir renkte vurgular */
-    min-width: 80px; /* Skorlar için yer ayırır, hizalamaya yardımcı olur */
+    color: var(--neon-pink); 
+    min-width: 80px; 
     text-align: right;
 }
-
 #playerRankSectionOnLeaderboard {
     margin-top: 30px;
     padding: 15px;
-    background-color: rgba(255, 51, 119, 0.15); /* var(--neon-pink) ile uyumlu */
+    background-color: rgba(var(--neon-pink-rgb), 0.15); 
     border: 1px solid var(--neon-pink);
     border-radius: 8px;
-    max-width: 450px; /* Liste ile aynı genişlikte olabilir */
+    max-width: 450px; 
     margin-left: auto;
     margin-right: auto;
-    color: #f0f0f0; /* Metin rengi */
+    color: #f0f0f0; 
     font-size: 1rem;
     font-weight: bold;
 }
-
-#playerRankSectionOnLeaderboard .rank { /* Oyuncunun kendi sırası için ek stil */
+#playerRankSectionOnLeaderboard .rank { 
     color: var(--neon-blue);
+}
+
+
+/* Mobil uyumluluk */
+@media (max-width: 480px) {
+    body {
+        padding: 10px 10px 70px !important; /* MOBİL İÇİN GÜNCELLENDİ */
+        font-size: 13px; /* MOBİL İÇİN EKLENDİ */
+    }
+
+    #uiContainer { /* MOBİL İÇİN GÜNCELLENDİ */
+        min-height: calc(100vh - 70px); /* body padding'i ile uyumlu */
+    }
+
+    h1 { /* MOBİL İÇİN EKLENDİ */
+        font-size: 1.8rem; 
+        margin-bottom: 15px;
+    }
+
+    /* Farm Butonu ve Çevresi Mobil */
+    #miningContainer { /* MOBİL İÇİN EKLENDİ */
+        margin-top: 8vh; 
+        width: 90%;     
+        max-width: 320px; 
+    }
+    
+    #farmButton { /* MOBİL İÇİN EKLENDİ */
+        padding: 12px 25px; 
+        font-size: 1.1rem;  
+    }
+
+    .cooldown-badge { /* MOBİL İÇİN EKLENDİ */
+        font-size: 0.85rem;
+        padding: 6px 10px;
+    }
+
+    #coinDisplay { /* MOBİL İÇİN EKLENDİ */
+        font-size: 1.8rem; 
+        margin-top: 15px; 
+        margin-bottom: 15px;
+    }
+
+    /* Günlük Bonus Alanı Mobil Stilleri */
+    #dailyBonusContainer { /* MOBİL İÇİN EKLENDİ */
+        margin-top: 20px;
+        padding: 10px;
+        width: 90%; 
+        max-width: 300px; 
+    }
+
+    #claimDailyBonusBtn { /* MOBİL İÇİN EKLENDİ */
+        padding: 10px 18px;
+        font-size: 1rem;
+    }
+    #dailyBonusMessage { /* MOBİL İÇİN EKLENDİ */
+        font-size: 0.85rem;
+        margin-top: 10px;
+    }
+
+    /* Liderlik Tablosu Sayfası Mobil Stilleri */
+    #leaderboardPage { /* MOBİL İÇİN EKLENDİ */
+        padding: 15px; 
+    }
+
+    #leaderboardPage h2 { /* MOBİL İÇİN EKLENDİ */
+        font-size: 1.5rem; 
+        margin-bottom: 10px;
+    }
+
+    #leaderboardPage p { /* MOBİL İÇİN EKLENDİ */
+        font-size: 0.9rem;
+        margin-bottom: 15px;
+    }
+
+    #fullLeaderboardList { /* MOBİL İÇİN EKLENDİ */
+        max-width: 100%; 
+    }
+
+    #fullLeaderboardList li { /* MOBİL İÇİN EKLENDİ */
+        padding: 8px 10px;
+        font-size: 0.85rem; 
+        margin-bottom: 6px;
+        /* flex-direction: row; Bu zaten varsayılan, gerekirse column yapılabilir */
+        align-items: center;
+    }
+    #fullLeaderboardList .rank { /* MOBİL İÇİN EKLENDİ */
+        margin-right: 8px;
+        min-width: 25px; 
+    }
+    #fullLeaderboardList .name { /* MOBİL İÇİN EKLENDİ */
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        margin-left: 3px;
+    }
+    #fullLeaderboardList .score { /* MOBİL İÇİN EKLENDİ */
+        min-width: auto; 
+        font-size: 0.8rem;
+        margin-left: 5px; 
+    }
+
+    #playerRankSectionOnLeaderboard { /* MOBİL İÇİN EKLENDİ */
+        margin-top: 20px;
+        padding: 12px;
+        font-size: 0.9rem;
+        width: 90%; 
+        max-width: 320px;
+    }
+    
+    /* Mevcut mobil .tabs ve .tab-button stilleriniz iyiydi, onları biraz daha düzenledim */
+    .tabs { /* MOBİL İÇİN GÜNCELLENDİ */
+        padding: 8px 0; 
+    }
+    .tab-button { /* MOBİL İÇİN GÜNCELLENDİ */
+        min-width: auto; /* Daha esnek olması için */
+        padding: 6px 8px; /* Buton iç boşlukları */
+        font-size: 0.65rem; /* Sekme butonu yazı boyutu */
+    }
+    .tab-button i { /* MOBİL İÇİN GÜNCELLENDİ */
+        font-size: 1rem; /* Sekme butonu ikon boyutu */
+    }
+    .tab-text { /* MOBİL İÇİN GÜNCELLENDİ */
+        font-size: 0.5rem; /* Sekme butonu alt yazı boyutu daha da küçük */
+    }
+
+    /* Quest container mobil stilleri zaten vardı, onları korudum */
+    .quest-container {
+        max-width: 280px; /* Sizin kodunuzda !important vardı, kaldırdım, gerekirse eklersiniz */
+        padding: 15px;    /* Sizin kodunuzda !important vardı */
+    }
+    .quest-container h3 { /* #earnPage .quest-container h3 yerine daha genel yaptım */
+        font-size: 1rem; /* Sizin kodunuzda !important vardı */
+    }
 }
