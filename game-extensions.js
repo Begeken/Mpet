@@ -1,51 +1,38 @@
 // ==================== DAILY BONUS SYSTEM ====================
 function checkDailyBonus() {
-  const today = new Date().toDateString();
-  const lastBonus = localStorage.getItem('lastBonusDate');
-  
-  if (lastBonus !== today) {
-    // Add coins (uses function from app.js)
-    if (window.addCoins) {
-      window.addCoins(50);
-    } else {
-      console.error("addCoins function is not defined!");
+    const today = new Date().toDateString();
+    const lastBonus = localStorage.getItem('lastBonusDate');
+
+    if (lastBonus !== today) {
+        // Coin ekle (index.js'deki MiningSystem örneği üzerinden)
+        if (window.addCoins) {
+            window.addCoins(50);
+        } else {
+            console.error("addCoins fonksiyonu tanımlı değil!");
+        }
+
+        localStorage.setItem('lastBonusDate', today);
+        showBonusMessage();
     }
-    
-    localStorage.setItem('lastBonusDate', today);
-    showBonusMessage();
-  }
 }
 
-// Show bonus message
+// Bonus mesajını göster
 function showBonusMessage() {
-  const msgElement = document.getElementById('message');
-  if (msgElement) {
-    msgElement.textContent = "🎁 Daily Bonus: 50 Coins!";
-    msgElement.classList.add('pulse-effect');
-    setTimeout(() => msgElement.classList.remove('pulse-effect'), 3000);
-  }
+    const msgElement = document.getElementById('message');
+    if (msgElement) {
+        msgElement.textContent = "🎁 Daily Bonus: 50 MPET!";
+        msgElement.classList.add('pulse-effect');
+        setTimeout(() => msgElement.classList.remove('pulse-effect'), 3000);
+    }
 }
 
-// ==================== MINING ANIMATION ====================
-function initMiningAnimation() {
-  const farmBtn = document.getElementById('farmButton');
-  if (!farmBtn) return;
-  
-  farmBtn.addEventListener('click', function() {
-    // Vibration effect
-    this.classList.add('vibrate');
-    setTimeout(() => this.classList.remove('vibrate'), 300);
-    
-    // Particle effect (with CSS)
-    const particles = document.createElement('div');
-    particles.className = 'mining-particles';
-    this.appendChild(particles);
-    setTimeout(() => particles.remove(), 1000);
-  });
-}
+// ==================== MADENCİLİK ANİMASYONU (index.js'e taşındı) ====================
+// Bu fonksiyonellik MiningSystem sınıfı içinde ele alınıyor.
 
-// Initialize app
+// Uygulamayı başlat
 document.addEventListener('DOMContentLoaded', () => {
-  checkDailyBonus();
-  initMiningAnimation();
+    checkDailyBonus();
+    // Madencilik animasyonu index.js içinde başlatılıyor.
 });
+
+// VIP Durum Kontrolü (social.js'de de var, burada tutulmasına gerek yok)
