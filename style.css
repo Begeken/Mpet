@@ -1,465 +1,432 @@
 /* Global neon teması */
 :root {
-  --neon-blue: #33cccc;
-  --neon-pink: #ff3377;
-  --space-dark: #0a0f1a;
+    --neon-blue: #33cccc;
+    --neon-pink: #ff3377;
+    --space-dark: #0a0f1a;
 }
 
 /* Scroll ve pozisyon kilitleri */
 html, body, #root, .telegram-webapp {
-  height: 100% !important;
-  width: 100% !important;
-  overflow: hidden !important;
-  position: fixed !important;
-  overscroll-behavior: none !important;
-  touch-action: none !important;
+    height: 100% !important;
+    width: 100% !important;
+    overflow: hidden !important;
+    position: fixed !important;
+    overscroll-behavior: none !important;
+    touch-action: none !important;
 }
 
 /* Container sıfırlamaları */
 #app, #main, .container, .wrapper {
-  overflow: hidden;
-  width: 100vw;
-  height: 100vh;
-  margin: 0; padding: 0;
+    overflow: hidden;
+    width: 100vw;
+    height: 100vh;
+    margin: 0; padding: 0;
 }
 * { box-sizing: border-box; }
 
+/* Body padding düzenlemesi */
+body {
+    padding: 20px 20px 80px !important; /* Alt menü için daha fazla boşluk */
+    margin: 0;
+    text-align: center; /* Ana içerik (button vb.) ortada dursun */
+}
+
 /* Üst neon UI kapsayıcısı */
 #uiContainer {
-  position: relative;
-  z-index: 10;
-  mix-blend-mode: screen;
-  backdrop-filter: blur(2px);
+    position: relative;
+    z-index: 10;
+    mix-blend-mode: screen;
+    backdrop-filter: blur(2px);
+    min-height: calc(100vh - 80px); /* Alt menü yüksekliğini hesaba kat */
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* İçindeki öğeleri ortala (yatayda) */
 }
 
 /* Butonlar - neon partikül efektli */
 button {
-  position: relative;
-  overflow: hidden;
-  transition: all 0.4s cubic-bezier(0.175,0.885,0.32,1.275);
+    position: relative;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.175,0.885,0.32,1.275);
+    outline: none;
 }
 button::after {
-  content: "";
-  position: absolute; top: -50%; left: -50%;
-  width: 200%; height: 200%;
-  background: radial-gradient(circle,
-    rgba(51,204,204,0.8) 0%,
-    transparent 70%);
-  transform: scale(0);
-  opacity: 0;
-  transition: transform 0.6s, opacity 0.4s;
+    content: "";
+    position: absolute; top: -50%; left: -50%;
+    width: 200%; height: 200%;
+    background: radial-gradient(circle,
+        rgba(51,204,204,0.8) 0%,
+        transparent 70%);
+    transform: scale(0);
+    opacity: 0;
+    transition: transform 0.6s, opacity 0.4s;
 }
 button:hover::after {
-  transform: scale(1);
-  opacity: 1;
+    transform: scale(1);
+    opacity: 1;
 }
 
 /* Metalik başlık efekti */
 h1 {
-  background: linear-gradient(90deg, var(--neon-blue), #a0ffff, var(--neon-blue));
-  -webkit-background-clip: text; background-clip: text;
-  color: transparent;
-  -webkit-text-stroke: 1px rgba(51,204,204,0.3);
+    background: linear-gradient(90deg, var(--neon-blue), #a0ffff, var(--neon-blue));
+    -webkit-background-clip: text; background-clip: text;
+    color: transparent;
+    -webkit-text-stroke: 1px rgba(51,204,204,0.3);
+    margin-top: 0;
 }
 
 /* Sayfa geçiş animasyonu */
-.page { 
-  transform-origin: center top; 
-  animation: pageEnter 0.6s forwards;
-  transition: opacity 0.3s ease, transform 0.3s ease;
+.page {
+    transform-origin: center top;
+    animation: pageEnter 0.6s forwards;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    width: 100%;
+    display: none; /* Başlangıçta tüm sayfalar gizli */
+    flex-direction: column;
+    align-items: center;
 }
 .page:not(.active) {
-  opacity: 0;
-  transform: translateY(10px);
-  pointer-events: none;
-  position: absolute;
-  width: 100%;
+    opacity: 0;
+    transform: translateY(10px);
+    pointer-events: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+.page.active {
+    display: flex; /* Aktif sayfa flex olarak gösterilir */
 }
 @keyframes pageEnter {
-  from { opacity:0; transform:rotateX(15deg) translateY(20px); }
-  to   { opacity:1; transform:rotateX(0)   translateY(0); }
+    from { opacity:0; transform:rotateX(15deg) translateY(20px); }
+    to    { opacity:1; transform:rotateX(0)    translateY(0); }
 }
 
 /* Coin puls efekti */
-#coinDisplay { animation: coinPulse 3s infinite; }
+#coinDisplay {
+    animation: coinPulse 3s infinite;
+    margin: 20px 0;
+}
 @keyframes coinPulse {
-  0%,100% { transform: scale(1); }
-  50%     { transform: scale(1.05); }
+    0%,100% { transform: scale(1); }
+    50%      { transform: scale(1.05); }
 }
 
-/* ===== TAB SİSTEMİ ===== */
+/* ===== OPTİMİZE EDİLMİŞ TAB BAR SİSTEMİ ===== */
 .tabs {
-  display: flex;
-  justify-content: space-around;
-  background: rgba(15, 44, 49, 0.7);
-  padding: 10px 0;
-  position: fixed;
-  bottom: 0;
-  width: 100%;
-  z-index: 1000;
-  backdrop-filter: blur(5px);
-  border-top: 1px solid var(--neon-blue);
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: space-around;
+    background: rgba(15, 44, 49, 0.9);
+    padding: 12px 0;
+    z-index: 1000;
+    backdrop-filter: blur(10px);
+    border-top: 1px solid var(--neon-blue);
+    margin: 0;
+    box-shadow: 0 -5px 15px rgba(0,0,0,0.3);
 }
 
 .tab-button {
-  background: transparent;
-  border: none;
-  color: var(--neon-blue);
-  font-family: 'Orbitron', sans-serif;
-  font-size: 0.9rem;
-  padding: 8px 15px;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-}
-
-.tab-button:hover {
-  color: #a0ffff;
-  transform: scale(1.05);
-  text-shadow: 0 0 10px var(--neon-blue);
-}
-
-.tab-button:disabled {
-  color: #55ffff;
-  cursor: default;
-  transform: none;
-  background: rgba(51, 204, 204, 0.2);
-  box-shadow: 
-    0 0 10px var(--neon-blue),
-    0 0 20px rgba(51, 204, 204, 0.3);
+    background: transparent;
+    border: none;
+    color: var(--neon-blue);
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.85rem;
+    padding: 8px 15px;
+    border-radius: 10px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    margin: 0;
+    transition: all 0.3s ease;
+    min-width: 60px;
 }
 
 .tab-button i {
-  font-size: 1rem;
-  transition: all 0.3s ease;
+    font-size: 1.3rem;
+    transition: all 0.3s ease;
+}
+
+.tab-text {
+    font-size: 0.7rem;
+    display: block;
+    transition: all 0.3s ease;
+}
+
+.tab-button:hover {
+    color: #a0ffff;
+    transform: translateY(-3px);
+}
+
+.tab-button:hover i {
+    text-shadow: 0 0 10px var(--neon-blue);
+}
+
+.tab-button:disabled {
+    color: #55ffff;
+    background: rgba(51, 204, 204, 0.2);
+    transform: none;
+    cursor: default;
 }
 
 /* Sayfa gizleme/gösterme */
-.page { display:none; }
-.page.active { display:block; }
+/* .page {
+    display: none;
+    padding-bottom: 60px; /* Tab bar yüksekliği kadar boşluk */
+/* }
+.page.active {
+    display: block;
+} */
 
-/* Earn sayfası tam ortalamalı flex */
+/* Earn sayfası */
 #earnPage.active {
-  display: flex !important;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    /* justify-content: center; */ /* İsterseniz bunu deneyebilirsiniz */
+    /* justify-content: flex-start; */
+    /* min-height: calc(100vh - 140px); */
 }
 
 /* Daily Quest kutusu */
 .quest-container {
-  background: rgba(10,15,26,0.85);
-  border:1px solid var(--neon-blue);
-  border-radius:12px;
-  padding:20px; margin:20px auto;
-  max-width:320px; text-align:center;
-  box-shadow:
-    0 0 15px rgba(51,204,204,0.4),
-    inset 0 0 10px rgba(51,204,204,0.2);
-  backdrop-filter:blur(6px);
+    background: rgba(10,15,26,0.85);
+    border: 1px solid var(--neon-blue);
+    border-radius: 12px;
+    padding: 20px;
+    margin: 20px auto;
+    max-width: 320px;
+    text-align: center;
+    box-shadow: 0 0 15px rgba(51,204,204,0.4),
+                inset 0 0 10px rgba(51,204,204,0.2);
+    backdrop-filter: blur(6px);
 }
+
 .quest-container h3 {
-  color: var(--neon-blue);
-  font-size:1.1rem;
-  margin-bottom:15px;
+    color: var(--neon-blue);
+    font-size: 1.1rem;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
 }
 
 /* Progress bar */
 .progress-bar {
-  width:100%; height:8px; background:rgba(51,204,204,0.15);
-  border-radius:10px; overflow:hidden;
+    width: 100%;
+    height: 8px;
+    background: rgba(51,204,204,0.15);
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 10px 0;
 }
 .progress-fill {
-  height:100%; width:0%;
-  background:linear-gradient(90deg,var(--neon-blue),var(--neon-pink));
-  transition:width 0.7s ease;
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, var(--neon-blue), var(--neon-pink));
+    transition: width 0.7s ease;
 }
 
 /* Mobil uyumluluk */
 @media (max-width: 480px) {
-  .tabs {
-    padding: 8px 0;
-  }
-  .tab-button {
-    font-size: 0.8rem;
-    padding: 6px 10px;
-  }
-  
-  .quest-container {
-    max-width: 260px !important;
-    padding: 14px !important;
-  }
-  .quest-container h3 {
-    font-size: 1rem !important;
-  }
-}
-/* ====== TAB SİSTEMİ ====== */
-.tabs {
-  display: flex;
-  justify-content: space-around;
-  background: rgba(15, 44, 49, 0.7);
-  padding: 10px 0;
-  position: fixed;
-  bottom: 0;
-  width: 100%;
-  z-index: 1000;
-  backdrop-filter: blur(5px);
-  border-top: 1px solid var(--neon-blue);
-  padding-bottom: env(safe-area-inset-bottom); /* iPhone çentik uyumu */
-}
+    body {
+        padding: 15px 15px 70px !important;
+    }
 
-.tab-button {
-  background: transparent;
-  border: none;
-  color: var(--neon-blue);
-  font-family: 'Orbitron', sans-serif;
-  font-size: 0.9rem;
-  padding: 8px 15px;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  position: relative;
-  overflow: hidden;
-}
+    .tabs {
+        padding: 10px 0;
+    }
 
-.tab-button::after {
-  content: "";
-  position: absolute;
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 0;
-  height: 2px;
-  background: var(--neon-blue);
-  transition: width 0.3s ease;
-}
+    .tab-button {
+        padding: 6px 10px;
+        font-size: 0.75rem;
+        min-width: 50px;
+    }
 
-.tab-button:hover {
-  color: #a0ffff;
-  transform: translateY(-3px);
-}
+    .tab-button i {
+        font-size: 1.1rem;
+    }
 
-.tab-button:hover::after {
-  width: 80%;
-}
+    .tab-text {
+        font-size: 0.6rem;
+    }
 
-.tab-button:disabled {
-  color: #55ffff;
-  background: rgba(51, 204, 204, 0.1);
-  transform: none !important;
-}
+    .quest-container {
+        max-width: 280px;
+        padding: 15px;
+    }
 
-.tab-button:disabled::after {
-  width: 80%;
-  background: #55ffff;
-}
+    .quest-container h3 {
+        font-size: 1rem;
+    }
 
-.tab-button i {
-  font-size: 1.2rem;
-}
-
-.tab-text {
-  font-size: 0.7rem;
-}
-
-/* Mobil Uyum */
-@media (max-width: 480px) {
-  .tabs {
-    padding: 8px 0;
-  }
-  .tab-button {
-    padding: 6px 10px;
-    font-size: 0.8rem;
-  }
-  .tab-button i {
-    font-size: 1rem;
-  }
-  .tab-text {
-    display: none;
-  }
+    #uiContainer {
+        min-height: calc(100vh - 70px);
+    }
 }
 
 /* Telegram Paylaş Butonu */
 #shareBtn {
-  display: none !important;
+    display: none !important;
 }
 .telegram-webapp #shareBtn {
-  display: flex !important;
-}/* Global Styles */
-:root {
-  --neon-blue: #33cccc;
-  --neon-pink: #ff3377;
-  --space-dark: #0a0f1a;
-}
-
-body {
-  margin: 0;
-  overflow-x: hidden;
-  font-family: 'Orbitron', sans-serif, monospace;
-  background: var(--space-dark);
-  color: var(--neon-blue);
-  padding: 40px;
-  text-align: center;
-  position: relative;
-  height: 100vh;
-}
-
-#bgCanvas {
-  position: fixed;
-  top: 0; left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 0;
-  display: block;
-}
-
-#uiContainer {
-  position: relative;
-  z-index: 10;
-}
-
-/* Tab Sistemi */
-.tabs {
-  display: flex;
-  justify-content: space-around;
-  background: rgba(15, 44, 49, 0.7);
-  padding: 10px 0;
-  position: fixed;
-  bottom: 0;
-  width: 100%;
-  z-index: 1000;
-  backdrop-filter: blur(5px);
-  border-top: 1px solid var(--neon-blue);
-  padding-bottom: env(safe-area-inset-bottom);
-}
-
-.tab-button {
-  background: transparent;
-  border: none;
-  color: var(--neon-blue);
-  font-family: 'Orbitron', sans-serif;
-  font-size: 0.9rem;
-  padding: 8px 15px;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  position: relative;
-  overflow: hidden;
-}
-
-.tab-button::after {
-  content: "";
-  position: absolute;
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 0;
-  height: 2px;
-  background: var(--neon-blue);
-  transition: width 0.3s ease;
-}
-
-.tab-button:hover {
-  color: #a0ffff;
-  transform: translateY(-3px);
-}
-
-.tab-button:hover::after {
-  width: 80%;
-}
-
-.tab-button:disabled {
-  color: #55ffff;
-  background: rgba(51, 204, 204, 0.1);
-  transform: none !important;
-}
-
-.tab-button:disabled::after {
-  width: 80%;
-  background: #55ffff;
-}
-
-/* Diğer stiller... */
-/* Earn sayfası öğelerini diğer sayfalardan gizle */
-.page:not(#earnPage) .quest-container,
-.page:not(#earnPage) .earn-options {
-  display: none !important;
-}
-/* ===== EARN SAYFASI ÖĞELERİNİ DİĞER SAYFALARDAN GİZLE ===== */
-#homePage .quest-container,
-#homePage .earn-options,
-#walletPage .quest-container,
-#walletPage .earn-options,
-#frensPage .quest-container,
-#frensPage .earn-options {
-  display: none !important;
-}
-
-#earnPage .quest-container,
-#earnPage .earn-options {
-  display: flex !important;
-  flex-direction: column;
-  align-items: center;
-}
-/* Farm butonu vibrasyon animasyonu */
-.farm-animation {
-  animation: vibrate 0.3s linear;
-}
-@keyframes vibrate {
-  0%, 100% { transform: translateX(0) rotate(0deg); }
-  25% { transform: translateX(-3px) rotate(-5deg); }
-  75% { transform: translateX(3px) rotate(5deg); }
+    display: flex !important;
 }
 
 /* VIP butonu efekti */
-.vip-badge {
-  background: linear-gradient(90deg, #ffd700, #ff9900) !important;
-  box-shadow: 0 0 15px #ffd700 !important;
-}
-
-/* Dark/Light mode desteği */
-@media (prefers-color-scheme: light) {
-  :root {
-    --neon-blue: #0066cc;
-    --space-dark: #f0f8ff;
-  }
-}
 .vip-btn {
-  background: linear-gradient(90deg, #ffd700, #ff9900);
-  animation: glow 1.5s infinite alternate;
+    background: linear-gradient(90deg, #ffd700, #ff9900);
+    animation: glow 1.5s infinite alternate;
+    position: relative;
 }
 @keyframes glow {
-  from { box-shadow: 0 0 5px #ffd700; }
-  to { box-shadow: 0 0 20px #ff9900; }
-}
-.vip-modal {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background: #0a0f1a;
-  padding: 20px;
-  border: 2px solid #ffd700;
-  z-index: 1000;
+    from { box-shadow: 0 0 5px #ffd700; }
+    to { box-shadow: 0 0 20px #ff9900; }
 }
 
-#inviteBtn {
-  background: linear-gradient(90deg, #33cccc, #33eeee);
-  animation: pulse 2s infinite;
+/* Ekstra güvenlik önlemleri */
+.telegram-webapp body {
+    padding-bottom: calc(80px + env(safe-area-inset-bottom)) !important;
 }
 
-@keyframes pulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.05); }
+/* FARM BUTONU STİLLERİ (ORTALAMA VE ALTA ALMA) */
+#miningContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Yatayda ortala */
+    margin-bottom: 10px; /* MPET ile boşluk */
+}
+
+#farmButton {
+    display: flex;
+    flex-direction: column; /* Öğeleri dikey sırala */
+    align-items: center; /* Yatayda ortala */
+    justify-content: center; /* Dikeyde ortala (isteğe bağlı) */
+    padding: 18px 50px;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #55ffff;
+    cursor: pointer;
+    box-shadow:
+        0 0 14px var(--neon-blue),
+        0 0 35px var(--neon-blue),
+        0 0 50px #164650;
+    transition: all 0.4s cubic-bezier(0.175,0.885,0.32,1.275);
+    margin: 10px auto; /* Butonu yatayda ortala */
+    letter-spacing: 2px;
+    white-space: nowrap;
+}
+
+.cooldown-badge {
+    background-color: rgba(0, 0, 0, 0.5);
+    color: #ff3377; /* Neon kırmızı renk */
+    padding: 8px 15px;
+    border-radius: 8px;
+    font-size: 1rem;
+    margin-top: 5px; /* "Mining" yazısıyla boşluk bırak */
+    text-shadow: 0 0 5px #ff3377, 0 0 10px #ff3377; /* Neon gölge */
+}
+
+/* FARM BUTONU INACTIVE STİLİ (Görseldeki Kararma Efekti İçin) */
+#farmButton.inactive {
+    opacity: 0.6; /* Genel parlaklığı azalt */
+    box-shadow: none; /* Gölgeyi kaldır */
+    cursor:
+/* Günlük Görevler Modalı Stilleri */
+.daily-tasks-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.daily-tasks-modal {
+    background: #0f2b31;
+    color: #55ffff;
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 0 20px #33cccc;
+    text-align: left;
+    width: 80%;
+    max-width: 500px;
+}
+
+.daily-tasks-modal h3 {
+    color: #a0ffff;
+    margin-top: 0;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.daily-tasks-modal ul {
+    list-style: none;
+    padding: 0;
+    margin-bottom: 20px;
+}
+
+.daily-tasks-modal li {
+    padding: 10px 0;
+    border-bottom: 1px solid #33cccc;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.daily-tasks-modal li:last-child {
+    border-bottom: none;
+}
+
+.daily-tasks-modal li i {
+    margin-right: 10px;
+    color: #33cccc;
+}
+
+.task-button {
+    background: linear-gradient(90deg, #164650, #0f2b31);
+    color: #55ffff;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 15px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.task-button:hover:not(:disabled) {
+    background: linear-gradient(90deg, #33eeee, #33cccc);
+    color: #aaffff;
+}
+
+.task-button:disabled {
+    background-color: #222;
+    color: #555;
+    cursor: not-allowed;
+}
+
+.daily-tasks-modal .close-btn {
+    background: #ff3377;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 20px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.3s ease;
+    margin-top: 15px;
+}
+
+.daily-tasks-modal .close-btn:hover {
+    background: #ff6699;
 }
