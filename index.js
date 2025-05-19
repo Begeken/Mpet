@@ -1,216 +1,955 @@
-// ==================== TAB SİSTEMİ (Varsayılıyor) ====================
-class TabSystem {
-    constructor() {
-        this.tabs = document.querySelectorAll('.tab-button');
-        this.pages = {
-            home: document.getElementById('homePage'),
-            earn: document.getElementById('earnPage'),
-            frens: document.getElementById('frensPage'),
-            wallet: document.getElementById('walletPage')
-        };
-        this.init();
-    }
-
-    init() {
-        this.tabs.forEach(tab => {
-            tab.addEventListener('click', () => this.showPage(tab.id.replace('Btn', '').toLowerCase()));
-        });
-        this.showPage('home'); // Başlangıç sayfası
-    }
-
-    showPage(pageId) {
-        Object.values(this.pages).forEach(page => {
-            page.classList.remove('active');
-            page.style.display = 'none';
-        });
-        this.pages[pageId].classList.add('active');
-        this.pages[pageId].style.display = 'flex';
-this.tabs.forEach(tab => {
-            tab.disabled = (tab.id.replace('Btn', '').toLowerCase() === pageId);
-        });
-        if (pageId === 'earn') {
-            // Earn sayfası aktif olduğunda quest ve earn seçeneklerini göster (CSS ile yapılıyor)
-        }
-    }
-}
-
-// ==================== ARKADAŞ SİSTEMİ (Varsayılıyor) ====================
-function initFriendSystem() {
-    // Arkadaş sistemi ile ilgili işlevler buraya gelecek
-    console.log("Arkadaş sistemi başlatıldı.");
-}
-
-// ==================== ENTEGRE MINING SISTEMI ====================
-class MiningSystem {
-    constructor() {
-        this.cooldown = 8 * 60 * 60 * 1000; // 8 saat (default)
-        this.coinDisplay = document.getElementById('coinDisplay');
-        this.farmBtn = document.getElementById('farmButton');
-        this.message = document.getElementById('message');
-        this.isProcessing = false;
-        this.cooldownBadge = document.querySelector('#miningContainer .cooldown-badge'); // Doğru badge elementini seç
-        this.dailyBonusElement = document.querySelector('#homePage > div:last-child'); // Daily Bonus elementini seç
-
-        this.init();
-    }
-
-    init() {
-        if (!this.farmBtn) {
-            console.error("Farm butonu bulunamadı!");
-            return;
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>PetMiner</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* TÜM ORİJİNAL STİLLERİNİZ AYNEN KORUNDU */
+        body {
+            margin: 0;
+            overflow-x: hidden;
+            font-family: 'Orbitron', sans-serif, monospace;
+            background: #0a0f1a;
+            color: #33cccc;
+            padding: 40px;
+            text-align: center;
+            position: relative;
+            height: 100vh;
         }
 
-        this.farmBtn.addEventListener('click', () => this.handleClick());
-        this.updateUI();
-        setInterval(() => this.updateUI(), 60000);
-
-        // VIP cooldown'unu kontrol et
-        if (this.isVIPActive() && localStorage.getItem('vip_cooldown')) {
-            this.cooldown = parseInt(localStorage.getItem('vip_cooldown'));
+        #bgCanvas {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            display: block;
         }
 
-        // Daily bonus yazısını başlangıçta göster
-        this.showDailyBonus();
-    }
-
-    handleClick() {
-        if (this.isProcessing) return;
-        this.isProcessing = true;
-        this.farmBtn.classList.add('inactive'); // Butona 'inactive' class'ını ekle (kararma için)
-        this.farmBtn.innerHTML = 'Farm ⛏️'; // Buton metnini değiştir
-
-        try {
-            this.handleMining();
-        } catch (e) {
-            console.error("Mining hatası:", e);
-        } finally {
-            setTimeout(() => {
-                this.isProcessing = false;
-                this.updateButtonTextAndState(); // Buton metnini ve durumunu güncelle
-                this.farmBtn.classList.remove('inactive'); // İşlem bitince 'inactive' class'ını kaldır
-            }, 1000);
-        }
-    }
-
-    handleMining() {
-        const lastFarm = parseInt(localStorage.getItem('lastFarmTime')) || 0;
-        const remaining = this.cooldown - (Date.now() - lastFarm);
-
-        if (remaining <= 0) {
-            const coinsToAdd = this.isVIPActive() ? 200 : 100;
-            this.addCoins(coinsToAdd);
-            localStorage.setItem('lastFarmTime', Date.now());
-
-            this.triggerAnimations();
-            this.showMessage(coinsToAdd);
-            this.hideDailyBonus(); // Mining yapıldığında daily bonus yazısını kaldır
+        #uiContainer {
+            position: relative;
+            z-index: 10;
+            padding-bottom: 70px; /* Tab çubuğu için boşluk eklendi */
         }
 
-        this.updateUI();
-    }
-
-    triggerAnimations() {
-        this.farmBtn.classList.add('vibrate');
-        setTimeout(() => this.farmBtn.classList.remove('vibrate'), 300);
-
-        const particles = document.createElement('div');
-        particles.className = 'mining-particles';
-        this.farmBtn.appendChild(particles);
-        setTimeout(() => particles.remove(), 1000);
-    }
-
-    showMessage(coins) {
-        this.message.textContent = this.isVIPActive()
-            ? `✨ VIP Bonus! +${coins} MPET`
-            : `⛏️ Mined ${coins} MPET`;
-    }
-
-    isVIPActive() {
-        const expiry = localStorage.getItem('vip_expiry');
-        return expiry && Date.now() < parseInt(expiry);
-    }
-
-    addCoins(amount) {
-        const current = parseInt(localStorage.getItem('coins')) || 0;
-        localStorage.setItem('coins', current + amount);
-        this.updateCoinDisplay(); // Coin göstergesini anında güncelle
-    }
-
-    updateCoinDisplay() {
-        const coins = parseInt(localStorage.getItem('coins')) || 0;
-        this.coinDisplay.textContent = `MPET: ${coins}`;
-    }
-
-    updateUI() {
-        this.updateCoinDisplay();
-        const lastFarm = parseInt(localStorage.getItem('lastFarmTime')) || 0;
-        const remaining = this.cooldown - (Date.now() - lastFarm);
-
-        this.updateButtonTextAndState(remaining);
-    }
-
-    updateButtonTextAndState(remaining = this.cooldown - (parseInt(localStorage.getItem('lastFarmTime')) || 0)) {
-        if (remaining <= 0) {
-            this.farmBtn.disabled = false;
-            this.farmBtn.innerHTML = 'Farm <i class="fas fa-hammer"></i>'; // İkonu geri ekledim
-            this.cooldownBadge.textContent = 'READY';
-        } else {
-            this.farmBtn.disabled = true;
-            const hours = Math.floor(remaining / (1000 * 60 * 60));
-            const minutes = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
-            const seconds = Math.floor((remaining % (1000 * 60)) / 1000);
-            const timeString = `⌛ ${String(hours).padStart(2, '0')}h ${String(minutes).padStart(2, '0')}m ${String(seconds).padStart(2, '0')}s`;
-            this.farmBtn.innerHTML = 'Farm <i class="fas fa-hammer"></i>'; // Cooldown sürerken de ikonu korudum
-            this.cooldownBadge.textContent = timeString;
+        h1 {
+            font-size: 2.7rem;
+            animation: flicker 3s infinite;
+            text-shadow:
+                0 0 8px #33cccc,
+                0 0 20px #33cccc,
+                0 0 40px #33cccc,
+                0 0 60px #33cccc;
+            margin-bottom: 20px;
         }
-    }
 
-    showDailyBonus() {
-        if (this.dailyBonusElement) {
-            this.dailyBonusElement.style.display = 'block';
+        #coinDisplay {
+            font-size: 2.5rem;
+            font-weight: 900;
+            margin: 30px 0;
+            text-shadow:
+                0 0 16px #33cccc,
+                0 0 40px #33cccc,
+                0 0 70px #33cccc,
+                0 0 100px #33cccc;
         }
-    }
 
-    hideDailyBonus() {
-        if (this.dailyBonusElement) {
-            this.dailyBonusElement.style.display = 'none';
+        #message {
+            font-size: 1.3rem;
+            color: #ff3377;
+            text-shadow: 0 0 10px #ff3377;
+            min-height: 40px;
         }
-    }
-}
 
-// ==================== INITIALIZE APP ====================
-document.addEventListener('DOMContentLoaded', () => {
-    new TabSystem();
-    initFriendSystem();
-    const miningSystem = new MiningSystem();
-    window.addCoins = miningSystem.addCoins.bind(miningSystem); // 'this' bağlamını kor
+        button {
+            background: linear-gradient(90deg, #0f2b31, #164650);
+            border: none;
+            border-radius: 15px;
+            padding: 18px 50px;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #55ffff;
+            cursor: pointer;
+            box-shadow:
+                0 0 14px #33cccc,
+                0 0 35px #33cccc,
+                0 0 50px #164650;
+            transition: all 0.3s ease;
+            margin: 10px;
+            letter-spacing: 2px;
+            position: relative; /* Badge için konumlandırma bağlamı */
+        }
 
-    initInviteButton();
-    initVIPButton();
+        button:hover:not(:disabled) {
+            background: linear-gradient(90deg, #33cccc, #33eeee);
+            box-shadow:
+                0 0 25px #33cccc,
+                0 0 45px #33eeee,
+                0 0 60px #33eeee;
+            color: #aaffff;
+            transform: scale(1.05);
+        }
 
-    if (window.Telegram?.WebApp) {
-        Telegram.WebApp.ready();
-        Telegram.WebApp.expand();
-    }
-});
+        button:disabled {
+            background: #222;
+            color: #555;
+            box-shadow: none;
+            cursor: not-allowed;
+        }
 
-// Eğer VIP butonu işlevselliğiniz varsa bu fonksiyonu tanımlayın:
-// function initVIPButton() {
-//     const vipButton = document.getElementById('vipButtonId'); // Gerçek ID'nizi buraya yazın
-//     if (vipButton) {
-//         vipButton.addEventListener('click', () => {
-//             // VIP satın alma veya etkinleştirme mantığınızı buraya ekleyin
-//             const vipDuration = 24 * 60 * 60 * 1000; // Örneğin 24 saat
-//             localStorage.setItem('vip_expiry', Date.now() + vipDuration);
-//             localStorage.setItem('vip_cooldown', 4 * 60 * 60 * 1000); // VIP için 4 saat cooldown
-//             miningSystem.cooldown = 4 * 60 * 60 * 1000;
-//             miningSystem.updateUI();
-//             console.log("VIP activated!");
-//         });
-//         // VIP durumunu kontrol edip butonu buna göre güncelleyebilirsiniz
-//         if (localStorage.getItem('vip_expiry') && Date.now() < parseInt(localStorage.getItem('vip_expiry'))) {
-//             vipButton.textContent = 'VIP Active';
-//             vipButton.disabled = true;
-//         }
-//     }
-// }
+        @keyframes flicker {
+            0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% {
+                opacity: 1;
+                text-shadow:
+                    0 0 8px #33cccc,
+                    0 0 20px #33cccc,
+                    0 0 40px #33cccc,
+                    0 0 60px #33cccc;
+            }
+            20%, 22%, 24%, 55% {
+                opacity: 0.7;
+                text-shadow: none;
+            }
+        }
+
+        /* ===== SAYFA GÖSTERME/GİZLEME MANTIĞI ===== */
+        .page {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            opacity: 0;
+            transform: translateY(10px);
+            pointer-events: none;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            animation: fadeIn 0.5s ease;
+            display: none !important; /* Kesinlikle gizle */
+        }
+
+        .page.active {
+            position: relative;
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: all;
+            display: flex !important; /* Flex olarak göster */
+            flex-direction: column;
+            align-items: center;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .page h2 {
+            color: #55ffff;
+            text-shadow: 0 0 10px #33cccc;
+            margin-top: 20px;
+        }
+
+        .page p {
+            color: #88ffff;
+            font-size: 1.2rem;
+        }
+
+        /* ===== EARN SAYFASI KONTROLLERİ ===== */
+        /* Tüm sayfalardaki quest ve earn-options'ı gizle */
+        .quest-container,
+        .earn-options {
+            display: none !important;
+            visibility: hidden !important;
+        }
+
+        /* Sadece aktif earn sayfasında göster */
+        #earnPage.active .quest-container,
+        #earnPage.active .earn-options {
+            display: flex !important;
+            visibility: visible !important;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Quest Container Stilleri */
+        .quest-container {
+            background: rgba(15, 44, 49, 0.3);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            border: 1px solid #33cccc;
+            box-shadow: 0 0 15px rgba(51, 204, 204, 0.3);
+        }
+
+        .quest-container h3 {
+            color: #55ffff;
+            margin-top: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .quest-progress {
+            margin: 15px 0;
+            font-size: 1.1rem;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: #0f2b31;
+            border-radius: 5px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #33cccc, #33eeee);
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+
+        .earn-options {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
+            margin: 20px auto 0;
+            width: 90%;
+            max-width: 380px;
+            flex-wrap: wrap;
+        }
+
+        .earn-option {
+            width: 100%;
+            padding: 15px;
+            font-size: 1.2rem;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .pulse-effect {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.7; }
+            50% { opacity: 1; }
+            100% { opacity: 0.7; }
+        }
+
+        /* ====== SAYFAYA ÖZEL KÜÇÜK DÜZELTMELER ====== */
+
+        /* 1) Earn sayfasını tam ortalamalı flex */
+        #earnPage {
+            justify-content: center;
+        }
+
+        /* 3) Daily Quest başlığını biraz küçült */
+        #earnPage .quest-container h3 {
+            font-size: 1.1rem !important;
+        }
+
+        /* 4) Watch Ad / Bonus Tasks yazısındaki üç noktayı kaldırıp tek satır görünmesini sağla */
+        #earnPage .earn-option {
+            white-space: nowrap !important;
+            overflow: visible !important;
+            text-overflow: clip !important;
+            min-width: 200px; /* İstersen burayı 180–220 arası oynatabilirsin */
+        }
+
+        /* YENİ TAB SİSTEMİ (NAV YERİNE) */
+        body .tabs {
+            position: fixed !important;
+            bottom: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            top: auto !important;
+            margin: 0 !important;
+            display: flex; /* Tab butonlarını yan yana diz */
+            justify-content: space-around; /* Eşit aralıklarla yerleştir */
+            background: rgba(15, 44, 49, 0.9); /* Arka plan rengi */
+            padding: 10px 0; /* Üst ve alt boşluk */
+            z-index: 100; /* Diğer elementlerin üzerinde kalsın */
+            border-top: 1px solid #33cccc; /* Üst çizgi */
+        }
+
+        .tab-button {
+            background: transparent;
+            color: #33cccc;
+            font-size: 0.9rem;
+            padding: 8px 15px;
+            border-radius: 8px;
+            box-shadow:
+                0 0 8px #33cccc,
+                0 0 15px #33cccc;
+            display: flex; /* İkon ve yazıyı dikey hizala */
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            transition: 0.3s;
+            min-width: 80px;
+            border: none;
+            cursor: pointer;
+        }
+
+        .tab-button i {
+            font-size: 1.2rem; /* İkon boyutunu büyüt */
+        }
+
+        .tab-button .tab-text {
+            font-size: 0.75rem; /* Yazı boyutunu küçült */
+        }
+
+        .tab-button:hover {
+            box-shadow:
+                0 0 15px #33cccc,
+                0 0 30px #33cccc;
+            color: #a0ffff;
+        }
+
+        .tab-button:active {
+            transform: scale(0.95);
+        }
+
+        .tab-button:disabled {
+            color: #003333;
+            box-shadow: none;
+            cursor: not-allowed;
+        }
+
+        /* Mobil uyumluluk */
+        @media (max-width: 480px) {
+            .tabs {
+                padding: 8px 0;
+            }
+            .tab-button {
+                font-size: 0.8rem;
+                padding: 6px 10px;
+                min-width: 60px;
+            }
+            .tab-button i {
+                font-size: 1rem;
+            }
+            .tab-button .tab-text {
+                font-size: 0.65rem;
+            }
+
+            .quest-container {
+                max-width: 260px !important;
+                padding: 14px !important;
+            }
+            .quest-container h3 {
+                font-size: 1rem !important;
+            }
+        }
+
+        /* YENİ EKLENEN STİL - FARM BUTONU VE COOLDOWN */
+        #miningContainer {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 10px; /* MPET ile boşluk */
+        }
+
+        #farmButton {
+            /* Mevcut buton stillerini koru */
+            background: linear-gradient(90deg, #0f2b31, #164650);
+            border: none;
+            border-radius: 15px;
+            padding: 18px 50px;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #55ffff;
+            cursor: pointer;
+            box-shadow:
+                0 0 14px #33cccc,
+                0 0 35px #33cccc,
+                0 0 50px #164650;
+            transition: all 0.3s ease;
+            margin: 10px;
+            letter-spacing: 2px;
+            position: relative; /* Cooldown badge için */
+        }
+
+        #farmButton .cooldown-badge {
+            /* Bu stil artık kullanılmıyor, #miningContainer içindeki div kullanılıyor */
+            display: none;
+        }
+
+        .cooldown-badge {
+            background-color: rgba(0, 0, 0, 0.5);
+            color: #ff3377;
+            padding: 8px 15px;
+            border-radius: 8px;
+            font-size: 1rem;
+            margin-top: 5px; /* Mining butonu ile boşluk */
+            text-shadow: 0 0 5px #ff3377, 0 0 10px #ff3377;
+        }
+
+        /* ARKADAŞ DAVET BUTONU STİLLERİ */
+        #frensPage button#inviteFriendBtn {
+            background: linear-gradient(90deg, #ff3377, #ff80bf);
+            color: white;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1rem;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            margin-top: 20px;
+            box-shadow: 0 0 10px #ff3377, 0 0 20px #ff80bf;
+            transition: transform 0.2s ease-in-out;
+        }
+
+        #frensPage button#inviteFriendBtn:hover {
+            transform: scale(1.05);
+        }
+
+        /* FARM BUTONU INACTIVE STİLİ (KARARMA EFEKTİ İÇİN) */
+        #farmButton.inactive {
+            opacity: 0.6; /* Genel parlaklığı azalt */
+            box-shadow: none; /* Gölgeyi kaldır */
+            cursor: wait; /* Bekleme imleci */
+            transition: opacity 0.3s ease; /* Yumuşak geçiş */
+        }
+
+        /* VIP MODAL STİLLERİ */
+        .vip-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .vip-modal {
+            background-color: #112233;
+            color: #ffffff;
+            padding: 20px;
+            margin: 20px 0;
+            border: 1px solid #33cccc;
+            box-shadow: 0 0 15px rgba(51, 204, 204, 0.3);
+        }
+
+        .quest-container h3 {
+            color: #55ffff;
+            margin-top: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .quest-progress {
+            margin: 15px 0;
+            font-size: 1.1rem;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: #0f2b31;
+            border-radius: 5px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #33cccc, #33eeee);
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+
+        .earn-options {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
+            margin: 20px auto 0;
+            width: 90%;
+            max-width: 380px;
+            flex-wrap: wrap;
+        }
+
+        .earn-option {
+            width: 100%;
+            padding: 15px;
+            font-size: 1.2rem;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .pulse-effect {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.7; }
+            50% { opacity: 1; }
+            100% { opacity: 0.7; }
+        }
+
+        /* ====== SAYFAYA ÖZEL KÜÇÜK DÜZELTMELER ====== */
+
+        /* 1) Earn sayfasını tam ortalamalı flex */
+        #earnPage {
+            justify-content: center;
+        }
+
+        /* 3) Daily Quest başlığını biraz küçült */
+        #earnPage .quest-container h3 {
+            font-size: 1.1rem !important;
+        }
+
+        /* 4) Watch Ad / Bonus Tasks yazısındaki üç noktayı kaldırıp tek satır görünmesini sağla */
+        #earnPage .earn-option {
+            white-space: nowrap !important;
+            overflow: visible !important;
+            text-overflow: clip !important;
+            min-width: 200px; /* İstersen burayı 180–220 arası oynatabilirsin */
+        }
+
+        /* YENİ TAB SİSTEMİ (NAV YERİNE) */
+        body .tabs {
+            position: fixed !important;
+            bottom: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            top: auto !important;
+            margin: 0 !important;
+            display: flex; /* Tab butonlarını yan yana diz */
+            justify-content: space-around; /* Eşit aralıklarla yerleştir */
+            background: rgba(15, 44, 49, 0.9); /* Arka plan rengi */
+            padding: 10px 0; /* Üst ve alt boşluk */
+            z-index: 100; /* Diğer elementlerin üzerinde kalsın */
+            border-top: 1px solid #33cccc; /* Üst çizgi */
+        }
+
+        .tab-button {
+            background: transparent;
+            color: #33cccc;
+            font-size: 0.9rem;
+            padding: 8px 15px;
+            border-radius: 8px;
+            box-shadow:
+                0 0 8px #33cccc,
+                0 0 15px #33cccc;
+            display: flex; /* İkon ve yazıyı dikey hizala */
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            transition: 0.3s;
+            min-width: 80px;
+            border: none;
+            cursor: pointer;
+        }
+
+        .tab-button i {
+            font-size: 1.2rem; /* İkon boyutunu büyüt */
+        }
+
+        .tab-button .tab-text {
+            font-size: 0.75rem; /* Yazı boyutunu küçült */
+        }
+
+        .tab-button:hover {
+            box-shadow:
+                0 0 15px #33cccc,
+                0 0 30px #33cccc;
+            color: #a0ffff;
+        }
+
+        .tab-button:active {
+            transform: scale(0.95);
+        }
+
+        .tab-button:disabled {
+            color: #003333;
+            box-shadow: none;
+            cursor: not-allowed;
+        }
+
+        /* Mobil uyumluluk */
+        @media (max-width: 480px) {
+            .tabs {
+                padding: 8px 0;
+            }
+            .tab-button {
+                font-size: 0.8rem;
+                padding: 6px 10px;
+                min-width: 60px;
+            }
+            .tab-button i {
+                font-size: 1rem;
+            }
+            .tab-button .tab-text {
+                font-size: 0.65rem;
+            }
+
+            .quest-container {
+                max-width: 260px !important;
+                padding: 14px !important;
+            }
+            .quest-container h3 {
+                font-size: 1rem !important;
+            }
+        }
+
+        /* YENİ EKLENEN STİL - FARM BUTONU VE COOLDOWN */
+        #miningContainer {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 10px; /* MPET ile boşluk */
+        }
+
+        #farmButton {
+            /* Mevcut buton stillerini koru */
+            background: linear-gradient(90deg, #0f2b31, #164650);
+            border: none;
+            border-radius: 15px;
+            padding: 18px 50px;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #55ffff;
+            cursor: pointer;
+            box-shadow:
+                0 0 14px #33cccc,
+                0 0 35px #33cccc,
+                0 0 50px #164650;
+            transition: all 0.3s ease;
+            margin: 10px;
+            letter-spacing: 2px;
+            position: relative; /* Cooldown badge için */
+        }
+
+        #farmButton .cooldown-badge {
+            /* Bu stil artık kullanılmıyor, #miningContainer içindeki div kullanılıyor */
+            display: none;
+        }
+
+        .cooldown-badge {
+            background-color: rgba(0, 0, 0, 0.5);
+            color: #ff3377;
+            padding: 8px 15px;
+            border-radius: 8px;
+            font-size: 1rem;
+            margin-top: 5px; /* Mining butonu ile boşluk */
+            text-shadow: 0 0 5px #ff3377, 0 0 10px #ff3377;
+        }
+
+        /* ARKADAŞ DAVET BUTONU STİLLERİ */
+        #frensPage button#inviteFriendBtn {
+            background: linear-gradient(90deg, #ff3377, #ff80bf);
+            color: white;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1rem;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            margin-top: 20px;
+            box-shadow: 0 0 10px #ff3377, 0 0 20px #ff80bf;
+            transition: transform 0.2s ease-in-out;
+        }
+
+        #frensPage button#inviteFriendBtn:hover {
+            transform: scale(1.05);
+        }
+
+        /* FARM BUTONU INACTIVE STİLİ (KARARMA EFEKTİ İÇİN) */
+        #farmButton.inactive {
+            opacity: 0.6; /* Genel parlaklığı azalt */
+            box-shadow: none; /* Gölgeyi kaldır */
+            cursor: wait; /* Bekleme imleci */
+            transition: opacity 0.3s ease; /* Yumuşak geçiş */
+        }
+
+        /* VIP MODAL STİLLERİ */
+        .vip-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .vip-modal {
+            background-color: #112233;
+            color: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 150, 150, 0.8);
+            text-align: center;
+        }
+
+        .vip-modal h3 {
+            color: #00ffff;
+            margin-top: 0;
+        }
+
+        .vip-modal ul {
+            list-style: none;
+            padding: 0;
+            margin-bottom: 20px;
+        }
+
+        .vip-modal li {
+            padding: 8px 0;
+            border-bottom: 1px solid #224455;
+        }
+
+        .vip-modal li:last-child {
+            border-bottom: none;
+        }
+
+        .vip-modal .modal-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .vip-modal button {
+            background: linear-gradient(90deg, #00aaff, #00ccff);
+            color: #112233;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 20px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .vip-modal button:hover {
+            background: linear-gradient(90deg, #00ccff, #00ffff);
+        }
+
+        .vip-modal .close-btn {
+            background: linear-gradient(90deg, #ff6666, #ff9999);
+            color: #331111;
+        }
+
+        .vip-modal .close-btn:hover {
+            background: linear-gradient(90deg, #ff9999, #ffcccc);
+        }
+
+        /* GÜNLÜK GÖREV MODALI STİLLERİ */
+        .daily-tasks-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .daily-tasks-modal {
+            background-color: #1a2a3c;
+            color: #f0f8ff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0, 180, 180, 0.7);
+            text-align: center;
+        }
+
+        .daily-tasks-modal h3 {
+            color: #00ced1;
+            margin-top: 0;
+            margin-bottom: 15px;
+        }
+
+        .daily-tasks-modal ul {
+            list-style: none;
+            padding: 0;
+            margin-bottom: 20px;
+        }
+
+        .daily-tasks-modal li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #2c3e50;
+        }
+
+        .daily-tasks-modal li:last-child {
+            border-bottom: none;
+        }
+
+        .daily-tasks-modal i {
+            margin-right: 10px;
+            color: #00ced1;
+        }
+
+        .daily-tasks-modal .task-button {
+            background-color: #27ae60;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            padding: 8px 15px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .daily-tasks-modal .task-button:hover:not(:disabled) {
+            background-color: #2ecc71;
+        }
+
+        .daily-tasks-modal .task-button:disabled {
+            background-color: #7f8c8d;
+            cursor: not-allowed;
+        }
+
+        .daily-tasks-modal .close-btn {
+            background-color: #c0392b;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 20px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .daily-tasks-modal .close-btn:hover {
+            background-color: #e74c3c;
+        }
+
+        /* VIP AKTİF STİLLERİ (BODY CLASS) */
+        body.vip-active {
+            /* İsteğe bağlı olarak buraya VIP aktifken body'e uygulanacak stilleri ekleyebilirsiniz */
+        }
+    </style>
+</head>
+<body>
+
+<canvas id="bgCanvas"></canvas>
+
+<div id="uiContainer">
+    <h1>PetMiner <i class="fas fa-paw"></i></h1>
+
+    <div id="homePage" class="page active">
+        <div id="miningContainer">
+            <button id="farmButton" type="button">Mining</button>
+            <div class="cooldown-badge">⌛ </div>
+        </div>
+        <div id="coinDisplay">Mpet: 0</div>
+<div id="dailyBonusContainer">
+    <button id="claimDailyBonusBtn">Bugünün Ödülünü Al!</button>
+    <p id="dailyBonusMessage"></p>
+</div>
+    <div id="message"></div>
+</div>
+
+<div id="earnPage" class="page">
+    <h2>Earn Mpet</h2>
+    <p>Complete challenges to earn more Mpet!</p>
+
+    <div class="quest-container">
+        <h3><i class="fas fa-medal"></i> Daily Quest</h3>
+        <div class="quest-progress">
+            <span id="quest-count">0</span>/3 Mines
+            <div class="progress-bar">
+                <div id="quest-progress" class="progress-fill"></div>
+            </div>
+        </div>
+        <button id="claim-btn" class="neon-button" disabled>
+            <i class="fas fa-gift"></i>
+        </button>
+        <p id="quest-complete" class="hidden pulse-effect">
+            <i class="fas fa-check-circle"></i> Reward claimed!
+        </p>
+    </div>
+
+    <div class="earn-options">
+        <button id="watchAdBtn" class="earn-option neon-button">
+            <i class="fas fa-ad"></i> Watch Ad (+10 MPET)
+        </button>
+        <button id="bonusTasksBtn" class="earn-option neon-button">
+            <i class="fas fa-star"></i> Bonus Tasks
+        </button>
+        <button id="vipBtn" class="earn-option neon-button vip-button">
+            <i class="fas fa-crown"></i> VIP Membership
+        </button>
+    </div>
+</div>
+
+<div id="walletPage" class="page">
+    <h2>Your Wallet</h2>
+    <p>View your Mpet balance, transactions and more.</p>
+    <div class="wallet-info">
+        <p><strong>Total Mpet:</strong> <span id="walletMpet">0</span></p>
+        <p><strong>Last Claimed:</strong> <span id="lastClaim">-</span></p>
+    </div>
+</div>
+
+<div id="frensPage" class="page">
+    <h2>Your Frens</h2>
+    <p>Connect with friends to mine together!</p>
+    <div class="frens-list">
+    </div>
+    <button id="inviteFriendBtn" class="invite-button">Invite Friends</button>
+</div>
+
+    <div id="leaderboardPage" class="page">
+        <h2>🏆 Leaderboard 🏆</h2>
+        <p>See where you rank among the top PetMiners!</p>
+        <ul id="fullLeaderboardList">
+            <li>Loading leaderboard...</li>
+        </ul>
+        <div id="playerRankSectionOnLeaderboard">
+            </div>
+    </div>
+
+<div class="tabs">
+    <button id="homeBtn" class="tab-button active" data-page="homePage">
+        <i class="fas fa-home"></i> <span class="tab-text">Home</span>
+    </button>
+    <button id="earnBtn" class="tab-button" data-page="earnPage">
+        <i class="fas fa-coins"></i> <span class="tab-text">Earn</span>
+    </button>
+    <button id="frensBtn" class="tab-button" data-page="frensPage">
+        <i class="fas fa-users"></i> <span class="tab-text">Frens</span>
+    </button>
+    <button id="leaderboardBtn" class="tab-button" data-page="leaderboardPage">
+        <i class="fas fa-trophy"></i> <span class="tab-text">Leaderboard</span> 
+    </button>
+    <button id="walletBtn" class="tab-button" data-page="walletPage">
+        <i class="fas fa-wallet"></i> <span class="tab-text">Wallet</span>
+    </button>
+</div>
+
+</div> <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+<script src="background-animation.js"></script>
+
+<script src="app.js"></script>
+<script src="game-extensions.js"></script> <script src="social.js"></script>         <script src="index.js"></script>
+
+</body>
+</html>
