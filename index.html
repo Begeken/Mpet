@@ -1,781 +1,676 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>PetMiner</title>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<style>
-  /* TÜM ORİJİNAL STİLLERİNİZ AYNEN KORUNDU */
-  body {
-    margin: 0;
-    overflow-x: hidden;
-    font-family: 'Orbitron', sans-serif, monospace;
-    background: #0a0f1a;
-    color: #33cccc;
-    padding: 40px;
-    text-align: center;
-    position: relative;
-    height: 100vh;
-  }
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>PetMiner</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* TÜM ORİJİNAL STİLLERİNİZ AYNEN KORUNDU */
+        body {
+            margin: 0;
+            overflow-x: hidden;
+            font-family: 'Orbitron', sans-serif, monospace;
+            background: #0a0f1a;
+            color: #33cccc;
+            padding: 40px;
+            text-align: center;
+            position: relative;
+            height: 100vh;
+        }
 
-  #bgCanvas {
-    position: fixed;
-    top: 0; left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 0;
-    display: block;
-  }
+        #bgCanvas {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            display: block;
+        }
 
-  #uiContainer {
-    position: relative;
-    z-index: 10;
-    padding-bottom: 70px; /* Tab çubuğu için boşluk eklendi */
-  }
+        #uiContainer {
+            position: relative;
+            z-index: 10;
+            padding-bottom: 70px; /* Tab çubuğu için boşluk eklendi */
+        }
 
-  h1 {
-    font-size: 2.7rem;
-    animation: flicker 3s infinite;
-    text-shadow:
-      0 0 8px #33cccc,
-      0 0 20px #33cccc,
-      0 0 40px #33cccc,
-      0 0 60px #33cccc;
-    margin-bottom: 20px;
-  }
+        h1 {
+            font-size: 2.7rem;
+            animation: flicker 3s infinite;
+            text-shadow:
+                0 0 8px #33cccc,
+                0 0 20px #33cccc,
+                0 0 40px #33cccc,
+                0 0 60px #33cccc;
+            margin-bottom: 20px;
+        }
 
-  #coinDisplay {
-    font-size: 2.5rem;
-    font-weight: 900;
-    margin: 30px 0;
-    text-shadow:
-      0 0 16px #33cccc,
-      0 0 40px #33cccc,
-      0 0 70px #33cccc,
-      0 0 100px #33cccc;
-  }
+        #coinDisplay {
+            font-size: 2.5rem;
+            font-weight: 900;
+            margin: 30px 0;
+            text-shadow:
+                0 0 16px #33cccc,
+                0 0 40px #33cccc,
+                0 0 70px #33cccc,
+                0 0 100px #33cccc;
+        }
 
-  #message {
-    font-size: 1.3rem;
-    color: #ff3377;
-    text-shadow: 0 0 10px #ff3377;
-    min-height: 40px;
-  }
+        #message {
+            font-size: 1.3rem;
+            color: #ff3377;
+            text-shadow: 0 0 10px #ff3377;
+            min-height: 40px;
+        }
 
-  button {
-    background: linear-gradient(90deg, #0f2b31, #164650);
-    border: none;
-    border-radius: 15px;
-    padding: 18px 50px;
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: #55ffff;
-    cursor: pointer;
-    box-shadow:
-      0 0 14px #33cccc,
-      0 0 35px #33cccc,
-      0 0 50px #164650;
-    transition: all 0.3s ease;
-    margin: 10px;
-    letter-spacing: 2px;
-  }
+        button {
+            background: linear-gradient(90deg, #0f2b31, #164650);
+            border: none;
+            border-radius: 15px;
+            padding: 18px 50px;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #55ffff;
+            cursor: pointer;
+            box-shadow:
+                0 0 14px #33cccc,
+                0 0 35px #33cccc,
+                0 0 50px #164650;
+            transition: all 0.3s ease;
+            margin: 10px;
+            letter-spacing: 2px;
+            position: relative; /* Badge için konumlandırma bağlamı */
+        }
 
-  button:hover:not(:disabled) {
-    background: linear-gradient(90deg, #33cccc, #33eeee);
-    box-shadow:
-      0 0 25px #33cccc,
-      0 0 45px #33eeee,
-      0 0 60px #33eeee;
-    color: #aaffff;
-    transform: scale(1.05);
-  }
+        button:hover:not(:disabled) {
+            background: linear-gradient(90deg, #33cccc, #33eeee);
+            box-shadow:
+                0 0 25px #33cccc,
+                0 0 45px #33eeee,
+                0 0 60px #33eeee;
+            color: #aaffff;
+            transform: scale(1.05);
+        }
 
-  button:disabled {
-    background: #222;
-    color: #555;
-    box-shadow: none;
-    cursor: not-allowed;
-  }
+        button:disabled {
+            background: #222;
+            color: #555;
+            box-shadow: none;
+            cursor: not-allowed;
+        }
 
-  @keyframes flicker {
-    0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% {
-      opacity: 1;
-      text-shadow:
-        0 0 8px #33cccc,
-        0 0 20px #33cccc,
-        0 0 40px #33cccc,
-        0 0 60px #33cccc;
-    }
-    20%, 22%, 24%, 55% {
-      opacity: 0.7;
-      text-shadow: none;
-    }
-  }
+        @keyframes flicker {
+            0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% {
+                opacity: 1;
+                text-shadow:
+                    0 0 8px #33cccc,
+                    0 0 20px #33cccc,
+                    0 0 40px #33cccc,
+                    0 0 60px #33cccc;
+            }
+            20%, 22%, 24%, 55% {
+                opacity: 0.7;
+                text-shadow: none;
+            }
+        }
 
-  /* ===== SAYFA GÖSTERME/GİZLEME MANTIĞI ===== */
-  .page {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    opacity: 0;
-    transform: translateY(10px);
-    pointer-events: none;
-    transition: opacity 0.3s ease, transform 0.3s ease;
-    animation: fadeIn 0.5s ease;
-    display: none !important; /* Kesinlikle gizle */
-  }
-  
-  .page.active {
-    position: relative;
-    opacity: 1;
-    transform: translateY(0);
-    pointer-events: all;
-    display: block !important; /* Kesinlikle göster */
-  }
+        /* ===== SAYFA GÖSTERME/GİZLEME MANTIĞI ===== */
+        .page {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            opacity: 0;
+            transform: translateY(10px);
+            pointer-events: none;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            animation: fadeIn 0.5s ease;
+            display: none !important; /* Kesinlikle gizle */
+        }
 
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
+        .page.active {
+            position: relative;
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: all;
+            display: flex !important; /* Flex olarak göster */
+            flex-direction: column;
+            align-items: center;
+        }
 
-  .page h2 {
-    color: #55ffff;
-    text-shadow: 0 0 10px #33cccc;
-    margin-top: 20px;
-  }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
 
-  .page p {
-    color: #88ffff;
-    font-size: 1.2rem;
-  }
+        .page h2 {
+            color: #55ffff;
+            text-shadow: 0 0 10px #33cccc;
+            margin-top: 20px;
+        }
 
-  /* ===== EARN SAYFASI KONTROLLERİ ===== */
-  /* Tüm sayfalardaki quest ve earn-options'ı gizle */
-  .quest-container,
-  .earn-options {
-    display: none !important;
-    visibility: hidden !important;
-  }
-  
-  /* Sadece aktif earn sayfasında göster */
-  #earnPage.active .quest-container,
-  #earnPage.active .earn-options {
-    display: flex !important;
-    visibility: visible !important;
-    flex-direction: column;
-    align-items: center;
-  }
+        .page p {
+            color: #88ffff;
+            font-size: 1.2rem;
+        }
 
-  /* Quest Container Stilleri */
-  .quest-container {
-    background: rgba(15, 44, 49, 0.3);
-    border-radius: 15px;
-    padding: 20px;
-    margin: 20px 0;
-    border: 1px solid #33cccc;
-    box-shadow: 0 0 15px rgba(51, 204, 204, 0.3);
-  }
+        /* ===== EARN SAYFASI KONTROLLERİ ===== */
+        /* Tüm sayfalardaki quest ve earn-options'ı gizle */
+        .quest-container,
+        .earn-options {
+            display: none !important;
+            visibility: hidden !important;
+        }
 
-  .quest-container h3 {
-    color: #55ffff;
-    margin-top: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-  }
+        /* Sadece aktif earn sayfasında göster */
+        #earnPage.active .quest-container,
+        #earnPage.active .earn-options {
+            display: flex !important;
+            visibility: visible !important;
+            flex-direction: column;
+            align-items: center;
+        }
 
-  .quest-progress {
-    margin: 15px 0;
-    font-size: 1.1rem;
-  }
+        /* Quest Container Stilleri */
+        .quest-container {
+            background: rgba(15, 44, 49, 0.3);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            border: 1px solid #33cccc;
+            box-shadow: 0 0 15px rgba(51, 204, 204, 0.3);
+        }
 
-  .progress-bar {
-    width: 100%;
-    height: 10px;
-    background: #0f2b31;
-    border-radius: 5px;
-    margin: 10px 0;
-    overflow: hidden;
-  }
+        .quest-container h3 {
+            color: #55ffff;
+            margin-top: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
 
-  .progress-fill {
-    height: 100%;
-    background: linear-gradient(90deg, #33cccc, #33eeee);
-    width: 0%;
-    transition: width 0.5s ease;
-  }
+        .quest-progress {
+            margin: 15px 0;
+            font-size: 1.1rem;
+        }
 
-  .earn-options {
-    display: flex;                 /* esnek kutu */
-    flex-direction: row;           /* yan yana */
-    justify-content: center;       /* yatayda ortala */
-    align-items: center;           /* dikey ortala (opsiyonel) */
-    gap: 12px;                     /* butonlar arası boşluk */
-    margin: 20px auto 0;           /* üstten boşluk, yatayda otomatik ortala */
-    width: 90%;                    /* ebeveyn genişliğinin %90'ını kullan */
-    max-width: 380px;              /* Daily Quest ile uyumlu en fazla genişlik */
-    flex-wrap: wrap;               /* taşarsa alt satıra geçsin */
-  }
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: #0f2b31;
+            border-radius: 5px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
 
-  .earn-option {
-    width: 100%;
-    padding: 15px;
-    font-size: 1.2rem;
-  }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #33cccc, #33eeee);
+            width: 0%;
+            transition: width 0.5s ease;
+        }
 
-  .hidden {
-    display: none;
-  }
+        .earn-options {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
+            margin: 20px auto 0;
+            width: 90%;
+            max-width: 380px;
+            flex-wrap: wrap;
+        }
 
-  .pulse-effect {
-    animation: pulse 2s infinite;
-  }
+        .earn-option {
+            width: 100%;
+            padding: 15px;
+            font-size: 1.2rem;
+        }
 
-  @keyframes pulse {
-    0% { opacity: 0.7; }
-    50% { opacity: 1; }
-    100% { opacity: 0.7; }
-  }
+        .hidden {
+            display: none;
+        }
 
-  /* ====== SAYFAYA ÖZEL KÜÇÜK DÜZELTMELER ====== */
+        .pulse-effect {
+            animation: pulse 2s infinite;
+        }
 
-  /* 1) Earn sayfasını tam ortalamalı flex */
-  #earnPage {
-    display: flex !important;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-  }
+        @keyframes pulse {
+            0% { opacity: 0.7; }
+            50% { opacity: 1; }
+            100% { opacity: 0.7; }
+        }
 
-  /* 3) Daily Quest başlığını biraz küçült */
-  #earnPage .quest-container h3 {
-    font-size: 1.1rem !important;
-  }
+        /* ====== SAYFAYA ÖZEL KÜÇÜK DÜZELTMELER ====== */
 
-  /* 4) Watch Ad / Bonus Tasks yazısındaki üç noktayı kaldırıp tek satır görünmesini sağla */
-  #earnPage .earn-option {
-    white-space: nowrap !important;
-    overflow: visible !important;
-    text-overflow: clip !important;
-    min-width: 200px; /* İstersen burayı 180–220 arası oynatabilirsin */
-  }
+        /* 1) Earn sayfasını tam ortalamalı flex */
+        #earnPage {
+            justify-content: center;
+        }
 
-  /* YENİ TAB SİSTEMİ (NAV YERİNE) */
-  .tabs {
-    display: flex;
-    justify-content: space-around;
-    background: rgba(15, 44, 49, 0.7);
-    padding: 10px 0;
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    z-index: 1000;
-    backdrop-filter: blur(5px);
-    border-top: 1px solid #33cccc;
-  }
+        /* 3) Daily Quest başlığını biraz küçült */
+        #earnPage .quest-container h3 {
+            font-size: 1.1rem !important;
+        }
 
-  .tab-button {
-    background: transparent;
-    color: #33cccc;
-    font-size: 0.9rem;
-    padding: 8px 15px;
-    border-radius: 8px;
-    box-shadow:
-      0 0 8px #33cccc,
-      0 0 15px #33cccc;
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    transition: 0.3s;
-    min-width: 80px;
-    border: none;
-    cursor: pointer;
-  }
+        /* 4) Watch Ad / Bonus Tasks yazısındaki üç noktayı kaldırıp tek satır görünmesini sağla */
+        #earnPage .earn-option {
+            white-space: nowrap !important;
+            overflow: visible !important;
+            text-overflow: clip !important;
+            min-width: 200px; /* İstersen burayı 180–220 arası oynatabilirsin */
+        }
 
-  .tab-button i {
-    font-size: 0.9rem;
-  }
+        /* YENİ TAB SİSTEMİ (NAV YERİNE) */
+        body .tabs {
+            position: fixed !important;
+            bottom: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            top: auto !important;
+            margin: 0 !important;
+            display: flex; /* Tab butonlarını yan yana diz */
+            justify-content: space-around; /* Eşit aralıklarla yerleştir */
+            background: rgba(15, 44, 49, 0.9); /* Arka plan rengi */
+            padding: 10px 0; /* Üst ve alt boşluk */
+            z-index: 100; /* Diğer elementlerin üzerinde kalsın */
+            border-top: 1px solid #33cccc; /* Üst çizgi */
+        }
 
-  .tab-button:hover {
-    box-shadow:
-      0 0 15px #33cccc,
-      0 0 30px #33cccc;
-    color: #a0ffff;
-  }
+        .tab-button {
+            background: transparent;
+            color: #33cccc;
+            font-size: 0.9rem;
+            padding: 8px 15px;
+            border-radius: 8px;
+            box-shadow:
+                0 0 8px #33cccc,
+                0 0 15px #33cccc;
+            display: flex; /* İkon ve yazıyı dikey hizala */
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            transition: 0.3s;
+            min-width: 80px;
+            border: none;
+            cursor: pointer;
+        }
 
-  .tab-button:active {
-    transform: scale(0.95);
-  }
+        .tab-button i {
+            font-size: 1.2rem; /* İkon boyutunu büyüt */
+        }
 
-  .tab-button:disabled {
-    color: #003333;
-    box-shadow: none;
-    cursor: not-allowed;
-  }
+        .tab-button .tab-text {
+            font-size: 0.75rem; /* Yazı boyutunu küçült */
+        }
 
-  /* Mobil uyumluluk */
-  @media (max-width: 480px) {
-    .tabs {
-      padding: 8px 0;
-    }
-    .tab-button {
-      font-size: 0.8rem;
-      padding: 6px 10px;
-    }
-    
-    .quest-container {
-      max-width: 260px !important;
-      padding: 14px !important;
-    }
-    .quest-container h3 {
-      font-size: 1rem !important;
-    }
-  }
-</style>
+        .tab-button:hover {
+            box-shadow:
+                0 0 15px #33cccc,
+                0 0 30px #33cccc;
+            color: #a0ffff;
+        }
+
+        .tab-button:active {
+            transform: scale(0.95);
+        }
+
+        .tab-button:disabled {
+            color: #003333;
+            box-shadow: none;
+            cursor: not-allowed;
+        }
+
+        /* Mobil uyumluluk */
+        @media (max-width: 480px) {
+            .tabs {
+                padding: 8px 0;
+            }
+            .tab-button {
+                font-size: 0.8rem;
+                padding: 6px 10px;
+                min-width: 60px;
+            }
+            .tab-button i {
+                font-size: 1rem;
+            }
+            .tab-button .tab-text {
+                font-size: 0.65rem;
+            }
+
+            .quest-container {
+                max-width: 260px !important;
+                padding: 14px !important;
+            }
+            .quest-container h3 {
+                font-size: 1rem !important;
+            }
+        }
+
+        /* YENİ EKLENEN STİL - FARM BUTONU VE COOLDOWN */
+        #miningContainer {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 10px; /* MPET ile boşluk */
+        }
+
+        #farmButton {
+            /* Mevcut buton stillerini koru */
+            background: linear-gradient(90deg, #0f2b31, #164650);
+            border: none;
+            border-radius: 15px;
+            padding: 18px 50px;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #55ffff;
+            cursor: pointer;
+            box-shadow:
+                0 0 14px #33cccc,
+                0 0 35px #33cccc,
+                0 0 50px #164650;
+            transition: all 0.3s ease;
+            margin: 10px;
+            letter-spacing: 2px;
+            position: relative; /* Cooldown badge için */
+        }
+
+        #farmButton .cooldown-badge {
+            /* Bu stil artık kullanılmıyor, #miningContainer içindeki div kullanılıyor */
+            display: none;
+        }
+
+        .cooldown-badge {
+            background-color: rgba(0, 0, 0, 0.5);
+            color: #ff3377;
+            padding: 8px 15px;
+            border-radius: 8px;
+            font-size: 1rem;
+            margin-top: 5px; /* Mining butonu ile boşluk */
+            text-shadow: 0 0 5px #ff3377, 0 0 10px #ff3377;
+        }
+
+        /* ARKADAŞ DAVET BUTONU STİLLERİ */
+        #frensPage button#inviteFriendBtn {
+            background: linear-gradient(90deg, #ff3377, #ff80bf);
+            color: white;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1rem;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            margin-top: 20px;
+            box-shadow: 0 0 10px #ff3377, 0 0 20px #ff80bf;
+            transition: transform 0.2s ease-in-out;
+        }
+
+        #frensPage button#inviteFriendBtn:hover {
+            transform: scale(1.05);
+        }
+
+        /* FARM BUTONU INACTIVE STİLİ (KARARMA EFEKTİ İÇİN) */
+        #farmButton.inactive {
+            opacity: 0.6; /* Genel parlaklığı azalt */
+            box-shadow: none; /* Gölgeyi kaldır */
+            cursor: wait; /* Bekleme imleci */
+            transition: opacity 0.3s ease; /* Yumuşak geçiş */
+        }
+
+        /* VIP BUTONU STİLLERİ (Zaten .earn-option ve .neon-button sınıflarını alıyor) */
+        #vipBtn {
+            /* İhtiyaç duyulursa buraya özel stiller eklenebilir */
+        }
+    </style>
 </head>
 <body>
 
 <canvas id="bgCanvas"></canvas>
 
 <div id="uiContainer">
-  <h1>PetMiner <i class="fas fa-paw"></i></h1>
+    <h1>PetMiner <i class="fas fa-paw"></i></h1>
 
-  <!-- SAYFALAR -->
-  <div id="homePage" class="page active">
-    <button id="farmButton" type="button">Farm ⛏️</button>
-    <div id="coinDisplay">Mpet: 0</div>
+    <div id="homePage" class="page active">
+        <div id="miningContainer">
+            <button id="farmButton" type="button">Mining</button>
+            <div class="cooldown-badge">⌛ </div>
+        </div>
+        <div id="coinDisplay">Mpet: 0</div>
     <div id="message"></div>
-  </div>
+</div>
 
-  <div id="earnPage" class="page">
+<div id="earnPage" class="page">
     <h2>Earn Mpet</h2>
     <p>Complete challenges to earn more Mpet!</p>
 
     <div class="quest-container">
-      <h3><i class="fas fa-medal"></i> Daily Quest</h3>
-      <div class="quest-progress">
-        <span id="quest-count">0</span>/3 Mines
-        <div class="progress-bar">
-          <div id="quest-progress" class="progress-fill"></div>
+        <h3><i class="fas fa-medal"></i> Daily Quest</h3>
+        <div class="quest-progress">
+            <span id="quest-count">0</span>/3 Mines
+            <div class="progress-bar">
+                <div id="quest-progress" class="progress-fill"></div>
+            </div>
         </div>
-      </div>
-      <button id="claim-btn" class="neon-button" disabled>
-        <i class="fas fa-gift"></i> Claim 25 MPET
-      </button>
-      <p id="quest-complete" class="hidden pulse-effect">
-        <i class="fas fa-check-circle"></i> Reward claimed!
-      </p>
+        <button id="claim-btn" class="neon-button" disabled>
+            <i class="fas fa-gift"></i>
+        </button>
+        <p id="quest-complete" class="hidden pulse-effect">
+            <i class="fas fa-check-circle"></i> Reward claimed!
+        </p>
     </div>
 
     <div class="earn-options">
-      <button id="watchAdBtn" class="earn-option neon-button">
-        <i class="fas fa-ad"></i> Watch Ad (+10 MPET)
-      </button>
-      <button id="bonusTasksBtn" class="earn-option neon-button">
-        <i class="fas fa-star"></i> Bonus Tasks
-      </button>
+        <button id="watchAdBtn" class="earn-option neon-button">
+            <i class="fas fa-ad"></i> Watch Ad (+10 MPET)
+        </button>
+        <button id="bonusTasksBtn" class="earn-option neon-button">
+            <i class="fas fa-star"></i> Bonus Tasks
+        </button>
+        <button id="vipBtn" class="earn-option neon-button vip-button">
+            <i class="fas fa-crown"></i> VIP Membership
+        </button>
     </div>
-  </div>
+</div>
 
-  <div id="walletPage" class="page">
+<div id="walletPage" class="page">
     <h2>Your Wallet</h2>
     <p>View your Mpet balance, transactions and more.</p>
     <div class="wallet-info">
-      <p><strong>Total Mpet:</strong> <span id="walletMpet">0</span></p>
-      <p><strong>Last Claimed:</strong> <span id="lastClaim">-</span></p>
+        <p><strong>Total Mpet:</strong> <span id="walletMpet">0</span></p>
+        <p><strong>Last Claimed:</strong> <span id="lastClaim">-</span></p>
     </div>
-  </div>
+</div>
 
-  <div id="frensPage" class="page">
+<div id="frensPage" class="page">
     <h2>Your Frens</h2>
     <p>Connect with friends to mine together!</p>
     <div class="frens-list">
     </div>
-  </div>
+    <button id="inviteFriendBtn" class="invite-button">Invite Friends</button>
+</div>
 
-  <!-- YENİ TAB ÇUBUĞU (NAV YERİNE) -->
-  <div class="tabs">
-    <button id="homeBtn" class="tab-button">
-      <i class="fas fa-home"></i> Home
+<div class="tabs">
+    <button id="homeBtn" class="tab-button active" data-page="homePage">
+        <i class="fas fa-home"></i> <span class="tab-text">Home</span>
     </button>
-    <button id="earnBtn" class="tab-button">
-      <i class="fas fa-coins"></i> Earn
+    <button id="earnBtn" class="tab-button" data-page="earnPage">
+        <i class="fas fa-coins"></i> <span class="tab-text">Earn</span>
     </button>
-    <button id="walletBtn" class="tab-button">
-      <i class="fas fa-wallet"></i> Wallet
+    <button id="walletBtn" class="tab-button" data-page="walletPage">
+        <i class="fas fa-wallet"></i> <span class="tab-text">Wallet</span>
     </button>
-    <button id="frensBtn" class="tab-button">
-      <i class="fas fa-users"></i> Frens
+    <button id="frensBtn" class="tab-button" data-page="frensPage">
+        <i class="fas fa-users"></i> <span class="tab-text">Frens</span>
     </button>
-  </div>
+</div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/three@0.150.1/build/three.min.js"></script>
 <script>
-  // -------- ARKA PLAN ANİMASYONU --------
-  const canvas = document.getElementById('bgCanvas');
-  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
-  renderer.setSize(window.innerWidth, window.innerHeight);
-  renderer.setClearColor(0x0a0f1a, 1);
-
-  const scene = new THREE.Scene();
-
-  const camera = new THREE.PerspectiveCamera(
-    75,
-    window.innerWidth / window.innerHeight,
-    0.1,
-    1000
-  );
-  camera.position.z = 40;
-
-  // Neon grid lines
-  const gridGroup = new THREE.Group();
-  const gridColor = new THREE.Color('#22ccff');
-
-  for (let i = -25; i <= 25; i += 2) {
-    // Horizontal lines
-    let geometry = new THREE.BufferGeometry().setFromPoints([
-      new THREE.Vector3(-25, 0, i),
-      new THREE.Vector3(25, 0, i)
-    ]);
-    let material = new THREE.LineBasicMaterial({ color: gridColor, transparent: true, opacity: 0.15 });
-    let line = new THREE.Line(geometry, material);
-    gridGroup.add(line);
-
-    // Vertical lines
-    geometry = new THREE.BufferGeometry().setFromPoints([
-      new THREE.Vector3(i, 0, -25),
-      new THREE.Vector3(i, 0, 25)
-    ]);
-    material = new THREE.LineBasicMaterial({ color: gridColor, transparent: true, opacity: 0.15 });
-    line = new THREE.Line(geometry, material);
-    gridGroup.add(line);
-  }
-  gridGroup.position.y = -10;
-  scene.add(gridGroup);
-
-  // Neon star particles
-  const starCount = 150;
-  const starGeometry = new THREE.BufferGeometry();
-  const starPositions = new Float32Array(starCount * 3);
-
-  for (let i = 0; i < starCount; i++) {
-    starPositions[i * 3] = (Math.random() - 0.5) * 80;
-    starPositions[i * 3 + 1] = (Math.random() - 0.5) * 50 + 10;
-    starPositions[i * 3 + 2] = (Math.random() - 0.5) * 80;
-  }
-  starGeometry.setAttribute('position', new THREE.BufferAttribute(starPositions, 3));
-
-  const starMaterial = new THREE.PointsMaterial({
-    color: new THREE.Color('#33ccff'),
-    size: 0.5,
-    sizeAttenuation: true,
-    transparent: true,
-    opacity: 0.8,
-    blending: THREE.AdditiveBlending,
-    depthWrite: false,
-  });
-
-  const stars = new THREE.Points(starGeometry, starMaterial);
-  scene.add(stars);
-
-  // Neon moving lines
-  const lineCount = 40;
-  const linesGroup = new THREE.Group();
-
-  for (let i = 0; i < lineCount; i++) {
-    const geometry = new THREE.BufferGeometry().setFromPoints([
-      new THREE.Vector3(0, 0, 0),
-      new THREE.Vector3(0, 0, -10)
-    ]);
-    const material = new THREE.LineBasicMaterial({
-      color: new THREE.Color(`hsl(${220 + i * 3}, 100%, 70%)`),
-      transparent: true,
-      opacity: 0.2 + Math.random() * 0.4,
-      blending: THREE.AdditiveBlending
-    });
-    const line = new THREE.Line(geometry, material);
-    line.position.set(
-      (Math.random() - 0.5) * 60,
-      (Math.random() - 0.5) * 40 + 10,
-      (Math.random() - 0.5) * 40 - 20
-    );
-    linesGroup.add(line);
-  }
-  scene.add(linesGroup);
-
-  // Animate background
-  function animate(time = 0) {
-    requestAnimationFrame(animate);
-
-    gridGroup.rotation.y = Math.sin(time / 3000) * 0.03;
-
-    const positions = stars.geometry.attributes.position.array;
-    for (let i = 0; i < starCount; i++) {
-      positions[i * 3 + 1] += 0.02 + 0.01 * Math.sin(time / 1000 + i);
-      if (positions[i * 3 + 1] > 30) {
-        positions[i * 3] = (Math.random() - 0.5) * 80;
-        positions[i * 3 + 1] = -30;
-        positions[i * 3 + 2] = (Math.random() - 0.5) * 80;
-      }
-    }
-    stars.geometry.attributes.position.needsUpdate = true;
-
-    linesGroup.children.forEach(line => {
-      line.position.z += 0.5;
-      if (line.position.z > 20) {
-        line.position.z = -40;
-        line.position.x = (Math.random() - 0.5) * 60;
-        line.position.y = (Math.random() - 0.5) * 40 + 10;
-      }
-    });
-
-    renderer.render(scene, camera);
-  }
-  animate();
-
-  window.addEventListener('resize', () => {
+    // -------- ARKA PLAN ANİMASYONU --------
+    const canvas = document.getElementById('bgCanvas');
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
-  });
+    renderer.setClearColor(0x0a0f1a, 1);
 
-  // -------- PETMINER LOGIC --------
-  const farmBtn = document.getElementById('farmButton');
-  const coinDisplay = document.getElementById('coinDisplay');
-  const message = document.getElementById('message');
+    const scene = new THREE.Scene();
 
-  const homeBtn = document.getElementById('homeBtn');
-  const earnBtn = document.getElementById('earnBtn');
-  const frensBtn = document.getElementById('frensBtn');
-  const walletBtn = document.getElementById('walletBtn');
+    const camera = new THREE.PerspectiveCamera(
+        75,
+        window.innerWidth / window.innerHeight,
+        0.1,
+        1000
+    );
+    camera.position.z = 40;
 
-  const COINS_PER_FARM = 100;
-  const FARM_COOLDOWN = 1000 * 60 * 60 * 8; // 8 hours
+    // Neon grid lines
+    const gridGroup = new THREE.Group();
+    const gridColor = new THREE.Color('#22ccff');
 
-  function getCoins() {
-    return parseInt(localStorage.getItem('coins')) || 0;
-  }
+for (let i = -25; i <= 25; i += 2) {
+        // Horizontal lines
+        let geometry = new THREE.BufferGeometry().setFromPoints([
+            new THREE.Vector3(-25, 0, i),
+            new THREE.Vector3(25, 0, i)
+        ]);
+        let material = new THREE.LineBasicMaterial({ color: gridColor, transparent: true, opacity: 0.15 });
+        let line = new THREE.Line(geometry, material);
+        gridGroup.add(line);
 
-  function setCoins(value) {
-    localStorage.setItem('coins', value);
-  }
-
-  function getLastFarmTime() {
-    return parseInt(localStorage.getItem('lastFarmTime')) || 0;
-  }
-
-  function setLastFarmTime(time) {
-    localStorage.setItem('lastFarmTime', time);
-  }
-
-  function updateUI() {
-    const coins = getCoins();
-    coinDisplay.textContent = `Mpet: ${coins}`;
-
-    const lastFarm = getLastFarmTime();
-    const now = Date.now();
-
-    if (now - lastFarm >= FARM_COOLDOWN) {
-      farmBtn.disabled = false;
-      message.textContent = '⛏️ Farming';
-      message.style.color = '#33cccc';
-      message.style.fontWeight = '700';
-      message.style.textShadow = '0 0 10px #33cccc';
-    } else {
-      farmBtn.disabled = true;
-      const waitTime = FARM_COOLDOWN - (now - lastFarm);
-      const hours = Math.floor(waitTime / (1000 * 60 * 60));
-      const minutes = Math.floor((waitTime % (1000 * 60 * 60)) / (1000 * 60));
-      const seconds = Math.floor((waitTime % (1000 * 60)) / 1000);
-      message.textContent = `⏳${hours}h ${minutes}m ${seconds}s`;
-      message.style.color = '#ff3377';
-      message.style.fontWeight = '700';
-      message.style.textShadow = '0 0 10px #ff3377';
+        // Vertical lines
+        geometry = new THREE.BufferGeometry().setFromPoints([
+            new THREE.Vector3(i, 0, -25),
+            new THREE.Vector3(i, 0, 25)
+        ]);
+        material = new THREE.LineBasicMaterial({ color: gridColor, transparent: true, opacity: 0.15 });
+        line = new THREE.Line(geometry, material);
+        gridGroup.add(line);
     }
-  }
+    gridGroup.position.y = -10;
+    scene.add(gridGroup);
 
-  farmBtn.addEventListener('click', () => {
-    if (!farmBtn.disabled) {
-      const coins = getCoins() + COINS_PER_FARM;
-      setCoins(coins);
-      setLastFarmTime(Date.now());
-      updateUI();
-      message.textContent = `${COINS_PER_FARM} Mpet mined! Come back in 8h.`;
-      message.style.color = '#55ffcc';
-      message.style.textShadow = '0 0 10px #55ffcc';
+    // Neon star particles
+    const starCount = 150;
+    const starGeometry = new THREE.BufferGeometry();
+    const starPositions = new Float32Array(starCount * 3);
+
+    for (let i = 0; i < starCount; i++) {
+        starPositions[i * 3] = (Math.random() - 0.5) * 80;
+        starPositions[i * 3 + 1] = (Math.random() - 0.5) * 50 + 10;
+        starPositions[i * 3 + 2] = (Math.random() - 0.5) * 80;
     }
-  });
+    starGeometry.setAttribute('position', new THREE.BufferAttribute(starPositions, 3));
 
-  // -------- SAYFA GEÇİŞ MANTIĞI --------
-  const pages = {
-    home: document.getElementById('homePage'),
-    earn: document.getElementById('earnPage'),
-    frens: document.getElementById('frensPage'),
-    wallet: document.getElementById('walletPage')
-  };
-
-  function showPage(page) {
-    // Tüm sayfaları gizle
-    Object.values(pages).forEach(p => {
-      p.classList.remove('active');
-      p.style.display = 'none'; // Kesinlikle gizle
+    const starMaterial = new THREE.PointsMaterial({
+        color: new THREE.Color('#33ccff'),
+        size: 0.5,
+        sizeAttenuation: true,
+        transparent: true,
+        opacity: 0.8,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false,
     });
-    
-    // İstenen sayfayı göster
-    pages[page].classList.add('active');
-    pages[page].style.display = 'block'; // Kesinlikle göster
-    
-    // Nav butonlarını güncelle
-    homeBtn.disabled = (page === 'home');
-    earnBtn.disabled = (page === 'earn');
-    frensBtn.disabled = (page === 'frens');
-    walletBtn.disabled = (page === 'wallet');
-  }
 
-  // Buton eventleri
-  homeBtn.addEventListener('click', () => showPage('home'));
-  earnBtn.addEventListener('click', () => showPage('earn'));
-  frensBtn.addEventListener('click', () => showPage('frens'));
-  walletBtn.addEventListener('click', () => showPage('wallet'));
+    const stars = new THREE.Points(starGeometry, starMaterial);
+    scene.add(stars);
 
-  // Başlangıçta Home sayfasını göster
-  showPage('home');
-  updateUI();
+    // Neon moving lines
+    const lineCount = 40;
+    const linesGroup = new THREE.Group();
 
-  // Update countdown every second
-  setInterval(updateUI, 1000);
+    for (let i = 0; i < lineCount; i++) {
+        const geometry = new THREE.BufferGeometry().setFromPoints([
+            new THREE.Vector3(0, 0, 0),
+            new THREE.Vector3(0, 0, -10)
+        ]);
+        const material = new THREE.LineBasicMaterial({
+            color: new THREE.Color(`hsl(${220 + i * 3}, 100%, 70%)`),
+            transparent: true,
+            opacity: 0.2 + Math.random() * 0.4,
+            blending: THREE.AdditiveBlending
+        });
+        const line = new THREE.Line(geometry, material);
+        line.position.set(
+            (Math.random() - 0.5) * 60,
+            (Math.random() - 0.5) * 40 + 10,
+            (Math.random() - 0.5) * 40 - 20
+        );
+        linesGroup.add(line);
+    }
+    scene.add(linesGroup);
 
-  // -------- DAILY QUEST LOGIC --------
-  const QUEST_KEY = 'dailyQuest';
-  const questCount = document.getElementById('quest-count');
-  const questProgressBar = document.getElementById('quest-progress');
-  const claimBtn = document.getElementById('claim-btn');
-  const questComplete = document.getElementById('quest-complete');
+    // Animate background
+    function animate(time = 0) {
+        requestAnimationFrame(animate);
 
-  function getQuestData() {
-    const data = JSON.parse(localStorage.getItem(QUEST_KEY)) || {
-      date: new Date().toDateString(),
-      count: 0,
-      claimed: false
-    };
+        gridGroup.rotation.y = Math.sin(time / 3000) * 0.03;
 
-    // Eğer yeni güne girilmişse sıfırla
-    if (data.date !== new Date().toDateString()) {
-      data.count = 0;
-      data.claimed = false;
-      data.date = new Date().toDateString();
-      localStorage.setItem(QUEST_KEY, JSON.stringify(data));
+        const positions = stars.geometry.attributes.position.array;
+        for (let i = 0; i < starCount; i++) {
+            positions[i * 3 + 1] += 0.02 + 0.01 * Math.sin(time / 1000 + i);
+            if (positions[i * 3 + 1] > 30) {
+                positions[i * 3] = (Math.random() - 0.5) * 80;
+                positions[i * 3 + 1] = -30;
+                positions[i * 3 + 2] = (Math.random() - 0.5) * 80;
+            }
+        }
+        stars.geometry.attributes.position.needsUpdate = true;
+
+        linesGroup.children.forEach(line => {
+            line.position.z += 0.5;
+            if (line.position.z > 20) {
+                line.position.z = -40;
+                line.position.x = (Math.random() - 0.5) * 60;
+                line.position.y = (Math.random() - 0.5) * 40 + 10;
+            }
+        });
+
+        renderer.render(scene, camera);
+    }
+    animate();
+
+    window.addEventListener('resize', () => {
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+    });
+
+    // -------- PETMINER LOGIC (Bu bölüm index.js tarafından yönetiliyor) --------
+    // -------- SAYFA GEÇİŞ MANTIĞI (Bu bölüm TabSystem tarafından yönetiliyor) --------
+
+    // -------- DAILY QUEST LOGIC (Bu bölüm game-extensions.js tarafından yönetiliyor) --------
+
+    // -------- Telegram WebApp init (app.js tarafından yönetiliyor) --------
+
+    // --- Earn sayfası buton işlevleri (Bu bölüm app.js veya ayrı bir dosyada olabilir) ---
+    const watchAdBtn = document.getElementById('watchAdBtn');
+    const bonusTasksBtn = document.getElementById('bonusTasksBtn');
+
+    if (watchAdBtn) {
+        watchAdBtn.addEventListener('click', () => {
+            // Bu işlevsellik game-extensions.js içinde olmalı
+            console.log("Watch Ad button clicked (functionality in game-extensions.js)");
+        });
     }
 
-    return data;
-  }
-
-  function saveQuestData(data) {
-    localStorage.setItem(QUEST_KEY, JSON.stringify(data));
-  }
-
-  function updateQuestUI() {
-    const data = getQuestData();
-    questCount.textContent = data.count;
-    questProgressBar.style.width = `${(data.count / 3) * 100}%`;
-
-    if (data.count >= 3) {
-      if (data.claimed) {
-        claimBtn.disabled = true;
-        claimBtn.classList.add('hidden');
-        questComplete.classList.remove('hidden');
-      } else {
-        claimBtn.disabled = false;
-        claimBtn.classList.remove('hidden');
-        questComplete.classList.add('hidden');
-      }
-    } else {
-      claimBtn.disabled = true;
-      claimBtn.classList.add('hidden');
-      questComplete.classList.add('hidden');
+    if (bonusTasksBtn) {
+        bonusTasksBtn.addEventListener('click', () => {
+            // Bu işlevsellik game-extensions.js içinde olmalı
+            console.log("Bonus Tasks button clicked (functionality in game-extensions.js)");
+        });
     }
-  }
-
-  farmBtn.addEventListener('click', (event) => {
-    const data = getQuestData();
-    if (data.count < 3) {
-      data.count++;
-      saveQuestData(data);
-      updateQuestUI();
-    }
-  });
-
-  claimBtn.addEventListener('click', () => {
-    const data = getQuestData();
-    if (data.count >= 3 && !data.claimed) {
-      data.claimed = true;
-      const bonus = 25; // ödül miktarı
-      const current = getCoins();
-      setCoins(current + bonus);
-      message.textContent = `🎁 +${bonus} Mpet from daily quest!`;
-      saveQuestData(data);
-      updateUI();
-      updateQuestUI();
-    }
-  });
-
-  // Sayfa açılışında
-  updateQuestUI();
-
-  // Telegram WebApp init
-  if (window.Telegram?.WebApp) {
-    Telegram.WebApp.expand();
-    
-    const meta = document.createElement('meta');
-    meta.name = 'viewport';
-    meta.content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover';
-    document.head.appendChild(meta);
-
-    document.body.addEventListener('touchmove', (e) => {
-      if (!e.target.classList.contains('scroll-allowed')) {
-        e.preventDefault();
-      }
-    }, { passive: false });
-  }
-
-  // --- Earn sayfası buton işlevleri ---
-  const watchAdBtn = document.getElementById('watchAdBtn');
-  const bonusTasksBtn = document.getElementById('bonusTasksBtn');
-
-  watchAdBtn.addEventListener('click', () => {
-    message.textContent = "🎬 Thanks for watching! +10 MPET";
-    const newCoins = getCoins() + 10;
-    setCoins(newCoins);
-    updateUI();
-    if (window.Telegram?.WebApp) {
-      Telegram.WebApp.showAlert("🎉 You earned 10 MPET!");
-    }
-  });
-
-  bonusTasksBtn.addEventListener('click', () => {
-    const tasks = [
-      "1) Share the game with a friend",
-      "2) Follow us on Twitter",
-      "3) Complete a survey"
-    ].join("\n");
-    if (window.Telegram?.WebApp) {
-      Telegram.WebApp.showAlert("⭐ Bonus Tasks:\n" + tasks);
-    } else {
-      alert("⭐ Bonus Tasks:\n" + tasks);
-    }
-  });
 </script>
 
-<!-- 🌟 EKLENEN 3 SATIR 🌟 -->
-<link rel="stylesheet" href="extensions.css">
+<script src="https://cdn.jsdelivr.net/npm/three@0.150.1/build/three.min.js"></script>
+<script src="app.js"></script>
 <script src="game-extensions.js"></script>
 <script src="social.js"></script>
+<script src="index.js"></script>
+
 
 </body>
 </html>
