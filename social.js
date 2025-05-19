@@ -61,28 +61,24 @@ function handleInviteClick() {
 
 function handleVIPClick() {
     if (window.Telegram?.WebApp) {
-        Telegram.WebApp.showConfirm(
-            "Get VIP for 99 MPET?",
-            (confirmed) => {
-                if (confirmed) {
-                    Telegram.WebApp.openInvoice('VIP_ITEM_LINK', (status) => {
-                        if (status === 'paid') {
-                            activateVIP();
-                            showVIPWelcome();
-                        }
-                    });
+        showVIPModal(() => {
+            // Kullanıcı VIP almak istediğini onayladı
+            Telegram.WebApp.openInvoice('VIP_ITEM_LINK', (status) => {
+                if (status === 'paid') {
+                    activateVIP();
+                    showVIPWelcome();
                 }
-            }
-        );
+            });
+        });
     } else {
-        showVIPModal();
+        showVIPModal(); // Telegram dışı ortam için geri çağırmaya gerek yok (şimdilik)
     }
 }
 
-function showVIPModal() {
-    const modal = document.createElement('div');
-    modal.className = 'vip-modal-overlay';
-    modal.innerHTML = `
+function showVIPModal(onConfirm) {
+    const modalOverlay = document.createElement('div');
+    modalOverlay.className = 'vip-modal-overlay';
+    modalOverlay.innerHTML = `
         <div class="vip-modal">
             <h3><i class="fas fa-crown"></i> VIP Benefits</h3>
             <ul>
@@ -90,15 +86,28 @@ function showVIPModal() {
                 <li>Exclusive Pets</li>
                 <li>No Ads</li>
             </ul>
-            <button class="close-btn">OK</button>
+            <div class="modal-buttons">
+                <button class="close-btn">Cancel</button>
+                <button class="confirm-btn">Get VIP for 99 MPET</button>
+            </div>
         </div>
     `;
 
-    modal.querySelector('.close-btn').addEventListener('click', () => {
-        modal.remove();
+    const closeBtn = modalOverlay.querySelector('.close-btn');
+    const confirmBtn = modalOverlay.querySelector('.confirm-btn');
+
+    closeBtn.addEventListener('click', () => {
+        modalOverlay.remove();
     });
 
-    document.body.appendChild(modal);
+    confirmBtn.addEventListener('click', () => {
+        modalOverlay.remove();
+        if (onConfirm) {
+            onConfirm(); // Geri çağırma fonksiyonunu çalıştır
+        }
+    });
+
+    document.body.appendChild(modalOverlay);
 }
 
 // ==================== VIP ÜYELİK FONKSİYONLARI ====================
@@ -148,22 +157,22 @@ function showDailyTasksModal() {
     modal.className = 'daily-tasks-modal-overlay';
     modal.innerHTML = `
         <div class="daily-tasks-modal">
-            <h3><i class="fas fa-tasks"></i> Günlük Görevler</h3>
+            <h3><i class="fas fa-tasks"></i> Daily Tasks</h3>
             <ul>
                 <li>
-                    <i class="fas fa-hammer"></i> 3 Kez Madencilik Yap (+50 MPET)
-                    <button class="task-button" data-task="mine">Tamamlandı</button>
+                    <i class="fas fa-hammer"></i> Mine 3 Times (+50 MPET)
+                    <button class="task-button" data-task="mine">Claim</button> 
                 </li>
                 <li>
-                    <i class="fas fa-ad"></i> 1 Reklam İzle (+25 MPET)
-                    <button class="task-button" data-task="watchAd">Tamamlandı</button>
+                    <i class="fas fa-ad"></i> Watch 1 Ad (+25 MPET)
+                    <button class="task-button" data-task="watchAd">Claim</button>
                 </li>
                 <li>
-                    <i class="fas fa-share-alt"></i> 1 Arkadaşını Davet Et (+75 MPET)
-                    <button class="task-button" data-task="invite">Tamamlandı</button>
+                    <i class="fas fa-share-alt"></i> Invite 1 Friend (+75 MPET)
+                    <button class="task-button" data-task="invite">Claim</button>
                 </li>
-                </ul>
-            <button class="close-btn">Kapat</button>
+            </ul>
+            <button class="close-btn">Close</button>
         </div>
     `;
 
@@ -179,9 +188,9 @@ function showDailyTasksModal() {
         button.addEventListener('click', (event) => {
             const taskType = event.target.dataset.task;
             // Burada görevin tamamlandığını işaretleme ve ödül verme mantığını ekleyebilirsiniz.
-            alert(`${taskType} görevi tamamlandı! (Ödül verme mantığı henüz eklenmedi)`);
+            alert(`${taskType} Mission Completed! (Ödül verme mantığı henüz eklenmedi)`);
             event.target.disabled = true; // Butonu devre dışı bırak
-            event.target.textContent = '✓ Tamamlandı';
+            event.target.textContent = '✓ Completed';
         });
     });
 
