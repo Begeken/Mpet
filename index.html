@@ -944,12 +944,41 @@
     </button>
 </div>
 
-</div> <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</div> 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
-<script src="background-animation.js"></script>
+    <script type="module">
+      // SDK'lardan ihtiyacınız olan fonksiyonları import edin
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.0/firebase-app.js";
+      import { getFirestore } from "https://www.gstatic.com/firebasejs/11.8.0/firebase-firestore.js";
+      // TODO: Kullanmak istediğiniz diğer Firebase ürünleri için SDK'ları ekleyin
+      // https://firebase.google.com/docs/web/setup#available-libraries
 
-<script src="app.js"></script>
-<script src="game-extensions.js"></script> <script src="social.js"></script>         <script src="index.js"></script>
+      // Web uygulamanızın Firebase yapılandırması (SİZİN BİLGİLERİNİZ)
+      const firebaseConfig = {
+        apiKey: "AIzaSyCScccDP33DoV_6bTTWgEC4w4BOlulwyKk",
+        authDomain: "petminer-2dc28.firebaseapp.com",
+        projectId: "petminer-2dc28",
+        storageBucket: "petminer-2dc28.firebasestorage.app",
+        messagingSenderId: "886118506648",
+        appId: "1:886118506648:web:356c9205ec3e6503cdb0ed"
+      };
+
+      // Firebase'i başlat
+      const app = initializeApp(firebaseConfig);
+      // Firestore servisini kullanıma hazırla
+      const db = getFirestore(app);
+
+      // Diğer (modül olmayan) scriptlerinizin db'ye erişebilmesi için global yapalım (dikkatli kullanın)
+      window.db = db;
+      window.firebaseApp = app; // Eğer 'app' objesine de ihtiyaç olursa
+
+    </script>
+    <script src="background-animation.js"></script>
+    <script src="app.js"></script>
+    <script src="game-extensions.js"></script> 
+    <script src="social.js"></script>      
+    <script src="index.js"></script>
 
 </body>
 </html>
