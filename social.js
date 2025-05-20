@@ -2,10 +2,10 @@
 
 // ==================== GÖREV SİSTEMİ İÇİN localStorage ANAHTARLARI VE SABİTLER ====================
 const TASK_MODAL_WATCH_AD_COMPLETED_DATE_KEY = 'petMiner_taskModal_watchAd_completedDate';
-const TASK_MODAL_WATCH_AD_REWARD = 25;
+const TASK_MODAL_WATCH_AD_REWARD = 25; // "Watch 1 Ad" modal görevinin ödülü
 
 const TASK_MODAL_MINE_COMPLETED_DATE_KEY = 'petMiner_taskModal_mine_completedDate';
-const TASK_MODAL_MINE_REWARD = 50;
+const TASK_MODAL_MINE_REWARD = 50; // Modaldeki "Mine 3 Times" görevinin ödülü
 
 const TASK_MODAL_INVITE_FRIEND_COMPLETED_DATE_KEY = 'petMiner_taskModal_invite_completedDate';
 const TASK_MODAL_INVITE_FRIEND_REWARD = 75;
@@ -14,6 +14,71 @@ const TASK_MODAL_INVITE_FRIEND_REWARD = 75;
 // window.QUEST_MINE_COUNT_KEY
 // window.QUEST_LAST_UPDATE_DATE_KEY
 // window.QUEST_TARGET_MINES
+
+// ==================== VİDEO REKLAM MODALI FONKSİYONU ====================
+function showVideoAdModal(videoSrc, onVideoEndCallback) {
+    // Eğer zaten bir video modalı açıksa, yenisini açma
+    if (document.querySelector('.video-ad-modal-overlay')) return;
+
+    const modalOverlay = document.createElement('div');
+    modalOverlay.className = 'video-ad-modal-overlay'; // CSS'te stil tanımlayacağız
+    modalOverlay.innerHTML = `
+        <div class="video-ad-modal-content">
+            <h4>Watch this short video to earn your reward!</h4>
+            <video id="rewardVideoPlayer" width="100%" height="auto" controls playsinline>
+                <source src="${videoSrc}" type="video/mp4">
+                Your browser does not support the video tag. Please try a different browser.
+            </video>
+            <button class="close-video-btn" type="button">Close (No Reward)</button>
+        </div>
+    `;
+    document.body.appendChild(modalOverlay);
+
+    const videoPlayer = modalOverlay.querySelector('#rewardVideoPlayer');
+    const closeVideoBtn = modalOverlay.querySelector('.close-video-btn');
+
+    const removeVideoModal = () => {
+        if (videoPlayer) videoPlayer.pause(); // Videoyu durdur
+        if (modalOverlay.parentNode) { // DOM'da olup olmadığını kontrol et
+             modalOverlay.remove();
+        }
+    };
+
+    if (videoPlayer) {
+        videoPlayer.onended = () => {
+            console.log("Video ad finished.");
+            removeVideoModal();
+            if (onVideoEndCallback) {
+                onVideoEndCallback(true); // Başarıyla bittiğini bildir
+            }
+        };
+
+        videoPlayer.onerror = () => {
+            console.error("Video ad failed to load or play.");
+            removeVideoModal();
+            alert("Video could not be played. Please try again later.");
+            if (onVideoEndCallback) {
+                onVideoEndCallback(false); // Başarısız olduğunu bildir
+            }
+        };
+        
+        // Autoplay'i dene, tarayıcı engellerse kullanıcı manuel başlatır (controls var)
+        videoPlayer.play().catch(error => {
+            console.warn("Video autoplay was prevented:", error);
+        });
+    }
+
+    if (closeVideoBtn) {
+        closeVideoBtn.addEventListener('click', () => {
+            removeVideoModal();
+            if (onVideoEndCallback) {
+                onVideoEndCallback(false); // Tamamlanmadığını bildir
+            }
+            showTemporaryMessageOnPage("Video closed. Reward not earned.");
+        });
+    }
+}
+
 
 // ==================== DAVET BUTONU ====================
 function initInviteButton() {
@@ -29,9 +94,8 @@ function initInviteButton() {
         inviteBtn.className = 'invite-button';
         inviteBtn.innerHTML = '<i class="fas fa-user-plus"></i> Invite Friends';
         frensPage.appendChild(inviteBtn);
-        // console.log("Davet butonu oluşturuldu."); // Tekrarlayan logları azaltabiliriz
     }
-    inviteBtn.removeEventListener('click', handleInviteClick); // Olası çift eklemeyi önle
+    inviteBtn.removeEventListener('click', handleInviteClick); 
     inviteBtn.addEventListener('click', handleInviteClick);
 }
 
@@ -54,9 +118,8 @@ function initVIPButton() {
         vipBtn.className = 'earn-option neon-button vip-button';
         vipBtn.innerHTML = '<i class="fas fa-crown"></i> VIP Membership';
         earnOptionsContainer.appendChild(vipBtn);
-        // console.log("VIP butonu .earn-options div'ine eklendi.");
     }
-    vipBtn.removeEventListener('click', handleVIPClick); // Olası çift eklemeyi önle
+    vipBtn.removeEventListener('click', handleVIPClick); 
     vipBtn.addEventListener('click', handleVIPClick);
 }
 
@@ -122,12 +185,12 @@ function showVIPModal(onConfirm) {
                 <button class="close-btn" type="button">Cancel</button>
                 <button class="confirm-btn" type="button">Get VIP</button> 
             </div>
-
-        </div>
-    `;
+            
+        </div> 
+    `; // O küçük (Price will be shown...) yazısını kaldırdım, sizin isteğiniz üzerine.
     const closeBtn = modalOverlay.querySelector('.close-btn');
     const confirmBtn = modalOverlay.querySelector('.confirm-btn');
-    const removeModal = () => modalOverlay.remove();
+    const removeModal = () => { if (modalOverlay.parentNode) modalOverlay.remove(); };
     closeBtn.addEventListener('click', () => { removeModal(); if (onConfirm) onConfirm(false); });
     confirmBtn.addEventListener('click', () => { removeModal(); if (onConfirm) onConfirm(true); });
     document.body.appendChild(modalOverlay);
@@ -162,7 +225,7 @@ function checkVIPStatus() {
         localStorage.removeItem('vip_cooldown');
         console.log("VIP status expired and local storage cleaned up.");
         if (typeof window.miningSystemInstance !== 'undefined' && window.miningSystemInstance) {
-            window.miningSystemInstance.cooldown = 8 * 60 * 60 * 1000; // Varsayılan 8 saate dön
+            window.miningSystemInstance.cooldown = 8 * 60 * 60 * 1000; 
             window.miningSystemInstance.updateUI();
             console.log("VIP expired. MiningSystem cooldown reset to default.");
         }
@@ -182,7 +245,7 @@ function updateVIPUI() {
 // ==================== GÜNLÜK GÖREVLER MODALI (BONUS TASKS) ====================
 function showDailyTasksModal() {
     if (document.querySelector('.daily-tasks-modal-overlay')) {
-        updateModalTaskButtonsState(); // Eğer açıksa, butonları güncelle ve çık
+        updateModalTaskButtonsState(); 
         return;
     }
 
@@ -211,7 +274,7 @@ function showDailyTasksModal() {
 
     const removeModal = () => {
         const overlay = document.querySelector('.daily-tasks-modal-overlay');
-        if (overlay) overlay.remove();
+        if (overlay && overlay.parentNode) overlay.remove();
     };
     
     const closeButton = modal.querySelector('.close-btn');
@@ -219,24 +282,25 @@ function showDailyTasksModal() {
         closeButton.addEventListener('click', removeModal);
     }
 
-    // Buton durumlarını ayarla ve olay dinleyicilerini ekle
-    updateModalTaskButtonsState(modal); // Modal'ı parametre olarak gönderiyoruz ki içindeki butonları bulsun
+    updateModalTaskButtonsState(modal); 
 
     document.body.appendChild(modal);
 }
 
-// Modal içindeki TÜM görev butonlarının durumunu güncelleyen ve olay dinleyicilerini atayan yardımcı fonksiyon
 function updateModalTaskButtonsState(modalElement) {
-    const modalToQuery = modalElement || document.querySelector('.daily-tasks-modal'); // Eğer modalElement verilmemişse, açık olanı bul
-    if (!modalToQuery) return; // Modal bulunamadıysa bir şey yapma
+    const modalToQuery = modalElement || document.querySelector('.daily-tasks-modal'); 
+    if (!modalToQuery) return; 
 
     const todayStr = new Date().toDateString();
 
     // --- "Mine 3 Times" Görev Butonu ---
     const mineTaskButton = modalToQuery.querySelector('#taskBtnMineModal');
     if (mineTaskButton) {
+        const newMineTaskButton = mineTaskButton.cloneNode(true); // Olay dinleyicilerini temizle
+        mineTaskButton.parentNode.replaceChild(newMineTaskButton, mineTaskButton);
+        
         updateSingleModalTaskButtonState(
-            mineTaskButton,
+            newMineTaskButton,
             localStorage.getItem(TASK_MODAL_MINE_COMPLETED_DATE_KEY) === todayStr,
             () => {
                 const globalMineCount = (typeof window.QUEST_LAST_UPDATE_DATE_KEY !== 'undefined' && localStorage.getItem(window.QUEST_LAST_UPDATE_DATE_KEY) === todayStr)
@@ -245,12 +309,9 @@ function updateModalTaskButtonsState(modalElement) {
                 return globalMineCount >= (window.QUEST_TARGET_MINES || 3);
             },
             TASK_MODAL_MINE_REWARD,
-            // İlerleme metni: X/Y Mines
             `${(typeof window.QUEST_LAST_UPDATE_DATE_KEY !== 'undefined' && localStorage.getItem(window.QUEST_LAST_UPDATE_DATE_KEY) === todayStr ? (parseInt(localStorage.getItem(window.QUEST_MINE_COUNT_KEY)) || 0) : 0)}/${(window.QUEST_TARGET_MINES || 3)} Mines`
         );
-        // Olay dinleyicisini tekrar eklememek için önce kaldır (opsiyonel ama güvenli)
-        mineTaskButton.replaceWith(mineTaskButton.cloneNode(true)); // Olay dinleyicilerini temizlemenin bir yolu
-        modalToQuery.querySelector('#taskBtnMineModal').addEventListener('click', (event) => { // Yeniden seçip ekle
+        newMineTaskButton.addEventListener('click', (event) => {
             handleModalTaskClaim(event.target, TASK_MODAL_MINE_COMPLETED_DATE_KEY, TASK_MODAL_MINE_REWARD, () => {
                 const globalMineCount = (typeof window.QUEST_LAST_UPDATE_DATE_KEY !== 'undefined' && localStorage.getItem(window.QUEST_LAST_UPDATE_DATE_KEY) === todayStr)
                                         ? (parseInt(localStorage.getItem(window.QUEST_MINE_COUNT_KEY)) || 0)
@@ -260,45 +321,63 @@ function updateModalTaskButtonsState(modalElement) {
         });
     }
 
-    // --- "Watch 1 Ad" Görev Butonu ---
+    // --- "Watch 1 Ad" Görev Butonu (Video Modalını Çağıracak Şekilde Güncellendi) ---
     const watchAdButton = modalToQuery.querySelector('#taskBtnWatchAdModal');
     if (watchAdButton) {
+        const newWatchAdButton = watchAdButton.cloneNode(true); // Olay dinleyicilerini temizle
+        watchAdButton.parentNode.replaceChild(newWatchAdButton, watchAdButton);
+
         updateSingleModalTaskButtonState(
-            watchAdButton,
+            newWatchAdButton,
             localStorage.getItem(TASK_MODAL_WATCH_AD_COMPLETED_DATE_KEY) === todayStr,
             () => true, 
             TASK_MODAL_WATCH_AD_REWARD
         );
-        watchAdButton.replaceWith(watchAdButton.cloneNode(true));
-        modalToQuery.querySelector('#taskBtnWatchAdModal').addEventListener('click', (event) => {
-            console.log("Watch Ad task: Simulating ad watch...");
-            // Simülasyon: Reklamın izlendiğini varsayalım
-            setTimeout(() => { // Reklam süresini simüle et
-                 handleModalTaskClaim(event.target, TASK_MODAL_WATCH_AD_COMPLETED_DATE_KEY, TASK_MODAL_WATCH_AD_REWARD, () => true, "Watch Ad Task");
-            }, 500);
+        newWatchAdButton.addEventListener('click', (event) => {
+            if (localStorage.getItem(TASK_MODAL_WATCH_AD_COMPLETED_DATE_KEY) === todayStr) {
+                alert("You have already completed the 'Watch Ad' task today.");
+                return; 
+            }
+            const videoUrl = "https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/360/Big_Buck_Bunny_360_10s_1MB.mp4"; 
+            
+            // Daily Tasks modalını hemen kapatmayalım.
+            // showDailyTasksModal içindeki removeModal çağrısını yoruma aldık, video bitince veya kapatılınca işlem yapılacak.
+            
+            showVideoAdModal(videoUrl, (videoCompletedSuccessfully) => {
+                if (videoCompletedSuccessfully) {
+                    handleModalTaskClaim(newWatchAdButton, TASK_MODAL_WATCH_AD_COMPLETED_DATE_KEY, TASK_MODAL_WATCH_AD_REWARD, () => true, "Watch Ad Task");
+                } else {
+                    console.log("Video ad was not completed or was closed early.");
+                }
+                // Video modalı kapandıktan sonra Daily Tasks modalı hala açıksa buton durumlarını tazeleyebiliriz
+                // Ancak showVideoAdModal içindeki callback zaten bu butonu güncelleyecektir.
+                // Eğer Daily Tasks modalı kapatılıp tekrar açılırsa, updateModalTaskButtonsState zaten çalışacak.
+                // Bu yüzden burada tekrar çağırmaya gerek olmayabilir.
+                // updateModalTaskButtonsState(); // Bu satır çift güncellemeye neden olabilir, dikkatli olun.
+            });
         });
     }
     
     // --- "Invite 1 Friend" Görev Butonu ---
     const inviteTaskButton = modalToQuery.querySelector('#taskBtnInviteModal');
     if (inviteTaskButton) {
+        const newInviteTaskButton = inviteTaskButton.cloneNode(true); // Olay dinleyicilerini temizle
+        inviteTaskButton.parentNode.replaceChild(newInviteTaskButton, inviteTaskButton);
+
         updateSingleModalTaskButtonState(
-            inviteTaskButton,
+            newInviteTaskButton,
             localStorage.getItem(TASK_MODAL_INVITE_FRIEND_COMPLETED_DATE_KEY) === todayStr,
             () => true, 
             TASK_MODAL_INVITE_FRIEND_REWARD
         );
-        inviteTaskButton.replaceWith(inviteTaskButton.cloneNode(true));
-        modalToQuery.querySelector('#taskBtnInviteModal').addEventListener('click', (event) => {
+        newInviteTaskButton.addEventListener('click', (event) => {
             handleInviteClick(); 
             console.log("Invite Friend task: Invite action triggered.");
-            // Davet sonrası hemen claim edilebilir varsayıyoruz
             handleModalTaskClaim(event.target, TASK_MODAL_INVITE_FRIEND_COMPLETED_DATE_KEY, TASK_MODAL_INVITE_FRIEND_REWARD, () => true, "Invite Friend Task");
         });
     }
 }
 
-// Tek bir modal görev butonunun metnini ve durumunu güncelleyen yardımcı fonksiyon
 function updateSingleModalTaskButtonState(button, isClaimedToday, canClaimCheckCallback, reward, progressTextIfCannotClaim = null) {
     if (!button) return;
     if (isClaimedToday) {
@@ -308,21 +387,16 @@ function updateSingleModalTaskButtonState(button, isClaimedToday, canClaimCheckC
         button.textContent = `Claim (+${reward} MPET)`;
         button.disabled = false;
     } else {
-        button.textContent = progressTextIfCannotClaim || `Claim (+${reward} MPET)`; // Eğer progressText varsa onu göster
+        button.textContent = progressTextIfCannotClaim || `Claim (+${reward} MPET)`;
         button.disabled = true;
     }
 }
 
-// Modal içindeki bir görevi claim etme işlemini yapan yardımcı fonksiyon
 function handleModalTaskClaim(buttonElement, localStorageKey, rewardAmount, canClaimCheckCallback, taskNameForLog = "Task") {
     if (localStorage.getItem(localStorageKey) === new Date().toDateString()) {
-        // Bu kontrol updateSingleModalTaskButtonState tarafından zaten yapılmalı ve buton disabled olmalı,
-        // ama ekstra bir güvenlik katmanı olarak kalabilir.
-        // alert(`You have already claimed the '${taskNameForLog}' reward today.`);
         console.warn(`Attempted to claim '${taskNameForLog}' which was already claimed today or not claimable.`);
         return;
     }
-
     if (canClaimCheckCallback()) {
         if (typeof window.addCoinsGlobal === 'function') {
             window.addCoinsGlobal(rewardAmount);
@@ -336,13 +410,11 @@ function handleModalTaskClaim(buttonElement, localStorageKey, rewardAmount, canC
             alert(`Error claiming reward (${taskNameForLog}).`);
         }
     } else {
-        // Bu durum normalde updateSingleModalTaskButtonState tarafından engellenmeli (buton disabled olmalı)
         alert(`Cannot claim '${taskNameForLog}' reward yet. Conditions not met.`);
         console.warn(`Attempted to claim '${taskNameForLog}' but conditions not met.`);
     }
 }
 
-// Geçici mesaj göstermek için yardımcı fonksiyon
 function showTemporaryMessageOnPage(text) {
     const messageElement = document.getElementById('message'); 
     if (messageElement) {
