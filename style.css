@@ -658,3 +658,60 @@ h1 {
 .daily-tasks-modal .task-button:disabled {
     /* Eğer textContent '✓ Completed' ise özel bir stil isterseniz */
 }
+/* style.css dosyanıza ekleyin */
+
+.video-ad-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.75); /* Daha koyu bir arka plan */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1001; /* Diğer modallardan da üstte olsun */
+    padding: 15px;
+    box-sizing: border-box;
+}
+
+.video-ad-modal-content {
+    background-color: #0a0f1a; /* Ana tema ile uyumlu */
+    padding: 20px;
+    border-radius: 10px;
+    border: 1px solid var(--neon-blue);
+    box-shadow: 0 0 25px rgba(var(--neon-blue-rgb), 0.5);
+    text-align: center;
+    max-width: 90%;
+    max-height: 90%;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.video-ad-modal-content h4 {
+    color: var(--neon-blue);
+    margin-top: 0;
+    font-size: 1.1rem;
+}
+
+.video-ad-modal-content video {
+    max-width: 100%;
+    border-radius: 5px;
+    max-height: calc(90vh - 150px); /* Başlık ve buton için pay bırak */
+}
+
+.video-ad-modal-content .close-video-btn {
+    background: var(--neon-pink); /* Kapatma butonu için farklı renk */
+    color: white;
+    padding: 8px 15px;
+    font-size: 0.9rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.video-ad-modal-content .close-video-btn:hover {
+    background: #ff6699; /* Hover rengi */
+}
