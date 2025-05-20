@@ -22,19 +22,17 @@ async function savePlayerData(userId, dataToSave) {
 }
 
 // ==================== GÜNLÜK GÖREV (DAILY QUEST) SİSTEMİ - ANA GÖREV ====================
-// Bu sabitleri global yapıyoruz ki social.js de bunlara erişebilsin
 window.QUEST_MINE_COUNT_KEY = 'petMiner_questMineCount';
 window.QUEST_LAST_UPDATE_DATE_KEY = 'petMiner_questLastUpdateDate';
-window.QUEST_TARGET_MINES = 3; // Hem ana görev hem de modaldeki görev için genel hedef
+window.QUEST_TARGET_MINES = 3; 
 
-// Bu sabitler sadece index.js içindeki ana günlük görev için, global yapmaya şimdilik gerek yok
-const QUEST_REWARD_CLAIMED_DATE_KEY = 'petMiner_questRewardClaimedDate'; // Ana görevin ödülünün alındığı tarih
-const DAILY_QUEST_REWARD_AMOUNT = 150; // Ana Günlük Görev ödül miktarı
+const QUEST_REWARD_CLAIMED_DATE_KEY = 'petMiner_questRewardClaimedDate';
+const DAILY_QUEST_REWARD_AMOUNT = 150; 
 
 function updateDailyQuestDisplay() {
     const questCountElement = document.getElementById('quest-count');
     const questProgressFillElement = document.getElementById('quest-progress');
-    const claimBtnElement = document.getElementById('claim-btn'); // Earn sayfasındaki ana claim butonu
+    const claimBtnElement = document.getElementById('claim-btn'); 
     const questCompleteMessageElement = document.getElementById('quest-complete');
 
     if (!questCountElement || !questProgressFillElement || !claimBtnElement || !questCompleteMessageElement) {
@@ -43,21 +41,21 @@ function updateDailyQuestDisplay() {
 
     const todayStr = new Date().toDateString();
     let currentMines = 0;
-    const lastUpdateDate = localStorage.getItem(window.QUEST_LAST_UPDATE_DATE_KEY); // window. ile erişim
+    const lastUpdateDate = localStorage.getItem(window.QUEST_LAST_UPDATE_DATE_KEY);
 
     if (lastUpdateDate === todayStr) {
-        currentMines = parseInt(localStorage.getItem(window.QUEST_MINE_COUNT_KEY)) || 0; // window. ile erişim
+        currentMines = parseInt(localStorage.getItem(window.QUEST_MINE_COUNT_KEY)) || 0;
     } else {
-        localStorage.setItem(window.QUEST_MINE_COUNT_KEY, '0'); // window. ile erişim
-        localStorage.setItem(window.QUEST_LAST_UPDATE_DATE_KEY, todayStr); // window. ile erişim
-        localStorage.removeItem(QUEST_REWARD_CLAIMED_DATE_KEY); // Ana görev için ödül bayrağını sıfırla
+        localStorage.setItem(window.QUEST_MINE_COUNT_KEY, '0');
+        localStorage.setItem(window.QUEST_LAST_UPDATE_DATE_KEY, todayStr);
+        localStorage.removeItem(QUEST_REWARD_CLAIMED_DATE_KEY);
         currentMines = 0;
     }
     
-    currentMines = Math.min(currentMines, window.QUEST_TARGET_MINES); // window. ile erişim
+    currentMines = Math.min(currentMines, window.QUEST_TARGET_MINES);
 
     questCountElement.textContent = currentMines;
-    const progressPercent = (currentMines / window.QUEST_TARGET_MINES) * 100; // window. ile erişim
+    const progressPercent = (currentMines / window.QUEST_TARGET_MINES) * 100;
     questProgressFillElement.style.width = `${progressPercent}%`;
 
     const rewardClaimedToday = localStorage.getItem(QUEST_REWARD_CLAIMED_DATE_KEY) === todayStr;
@@ -67,7 +65,7 @@ function updateDailyQuestDisplay() {
         claimBtnElement.innerHTML = '<i class="fas fa-check-circle"></i> Claimed';
         questCompleteMessageElement.classList.remove('hidden');
         questCompleteMessageElement.style.display = 'block';
-    } else if (currentMines >= window.QUEST_TARGET_MINES) { // window. ile erişim
+    } else if (currentMines >= window.QUEST_TARGET_MINES) {
         claimBtnElement.disabled = false;
         claimBtnElement.innerHTML = '<i class="fas fa-gift"></i> Claim Reward';
         questCompleteMessageElement.classList.add('hidden');
@@ -82,26 +80,48 @@ function updateDailyQuestDisplay() {
 
 function recordMineForQuest() { 
     const todayStr = new Date().toDateString();
-    let lastUpdateDate = localStorage.getItem(window.QUEST_LAST_UPDATE_DATE_KEY); // window. ile erişim
+    let lastUpdateDate = localStorage.getItem(window.QUEST_LAST_UPDATE_DATE_KEY);
     let mineCount = 0;
 
     if (lastUpdateDate === todayStr) {
-        mineCount = parseInt(localStorage.getItem(window.QUEST_MINE_COUNT_KEY)) || 0; // window. ile erişim
+        mineCount = parseInt(localStorage.getItem(window.QUEST_MINE_COUNT_KEY)) || 0;
     } else {
-        localStorage.setItem(window.QUEST_LAST_UPDATE_DATE_KEY, todayStr); // window. ile erişim
-        localStorage.setItem(window.QUEST_MINE_COUNT_KEY, '0'); // window. ile erişim
+        localStorage.setItem(window.QUEST_LAST_UPDATE_DATE_KEY, todayStr);
+        localStorage.setItem(window.QUEST_MINE_COUNT_KEY, '0');
         localStorage.removeItem(QUEST_REWARD_CLAIMED_DATE_KEY); 
         mineCount = 0; 
     }
 
     const mainQuestRewardClaimedToday = localStorage.getItem(QUEST_REWARD_CLAIMED_DATE_KEY) === todayStr;
 
-    if (mineCount < window.QUEST_TARGET_MINES && !mainQuestRewardClaimedToday) { // window. ile erişim
+    if (mineCount < window.QUEST_TARGET_MINES && !mainQuestRewardClaimedToday) {
          mineCount++;
-         localStorage.setItem(window.QUEST_MINE_COUNT_KEY, mineCount.toString()); // window. ile erişim
+         localStorage.setItem(window.QUEST_MINE_COUNT_KEY, mineCount.toString());
          console.log("Ana Günlük Görev Mine Sayısı Güncellendi:", mineCount);
     }
     updateDailyQuestDisplay(); 
+}
+
+// ==================== EARN SAYFASI "WATCH AD" BUTONU İÇİN SABİTLER VE FONKSİYON ====================
+const EARN_PAGE_WATCH_AD_COMPLETED_DATE_KEY = 'petMiner_earnPage_watchAd_completedDate';
+const EARN_PAGE_WATCH_AD_REWARD = 10; // Buton metnindeki ödül miktarı
+
+function updateEarnPageWatchAdButtonState() {
+    const watchAdBtnOnEarnPage = document.getElementById('watchAdBtn');
+    if (!watchAdBtnOnEarnPage) return;
+
+    const todayStr = new Date().toDateString();
+    const adWatchedToday = localStorage.getItem(EARN_PAGE_WATCH_AD_COMPLETED_DATE_KEY) === todayStr;
+
+    if (adWatchedToday) {
+        watchAdBtnOnEarnPage.innerHTML = '<i class="fas fa-check-circle"></i> Ad Watched Today';
+        watchAdBtnOnEarnPage.disabled = true;
+        watchAdBtnOnEarnPage.style.opacity = '0.7'; 
+    } else {
+        watchAdBtnOnEarnPage.innerHTML = `<i class="fas fa-ad"></i> Watch Ad (+${EARN_PAGE_WATCH_AD_REWARD} MPET)`;
+        watchAdBtnOnEarnPage.disabled = false;
+        watchAdBtnOnEarnPage.style.opacity = '1';
+    }
 }
 
 // ==================== TAB SİSTEMİ ====================
@@ -140,6 +160,7 @@ class TabSystem {
             });
             if (pageId === 'earn') {
                 updateDailyQuestDisplay(); 
+                updateEarnPageWatchAdButtonState(); // Earn sayfasına gelindiğinde "Watch Ad" butonunu güncelle
             }
         } else {
             console.error("Sayfa bulunamadı:", pageId);
@@ -154,6 +175,9 @@ function initFriendSystem() {
 
 // ==================== ENTEGRE MINING SISTEMI ====================
 class MiningSystem {
+    // ... (MiningSystem'in constructor, init, handleClick, handleMining, triggerAnimations, showMessage, isVIPActive, addCoins, updateCoinDisplay, updateUI, updateButtonTextAndState metotları olduğu gibi kalacak)
+    // Sizin gönderdiğiniz index.js'deki MiningSystem içeriği buraya tam olarak gelecek.
+    // Önceki mesajınızdaki MiningSystem içeriğini olduğu gibi buraya kopyalıyorum:
     constructor() {
         this.cooldown = 8 * 60 * 60 * 1000; 
         this.coinDisplay = document.getElementById('coinDisplay');
@@ -185,6 +209,7 @@ class MiningSystem {
             this.handleMining(); 
         } catch (e) {
             console.error("Mining sırasında bir hata oluştu:", e);
+            this.isProcessing = false; 
         } finally {
             setTimeout(() => {
                 this.isProcessing = false;
@@ -307,7 +332,10 @@ class MiningSystem {
     }
 }
 
+
 // ==================== GÜNLÜK GİRİŞ BONUSU SİSTEMİ ====================
+// ... (Günlük Giriş Bonusu Sistemi kodlarınız olduğu gibi kalacak) ...
+// Sizin gönderdiğiniz index.js'deki Günlük Giriş Bonusu Sistemi içeriğini olduğu gibi buraya kopyalıyorum:
 const DAILY_BONUS_REWARD_MPET = 50;
 const LOCAL_STORAGE_LAST_CLAIM_KEY = 'petMiner_lastDailyBonusClaimTime';
 let claimDailyBonusBtnEl = null; 
@@ -367,6 +395,7 @@ function handleClaimDailyBonus() {
     }
 }
 
+
 // ==================== INITIALIZE APP (UYGULAMAYI BAŞLAT) ====================
 document.addEventListener('DOMContentLoaded', () => {
     console.log("DOM yüklendi. Sistemler başlatılıyor...");
@@ -396,13 +425,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     initDailyBonusSystem();
 
+    // Ana Sayfaya Küçük VIP Yönlendirme Butonu Ekleme (Bu zaten vardı, korunuyor)
     const homePage = document.getElementById('homePage');
     if (homePage) {
         const smallVipBtn = document.createElement('button');
         smallVipBtn.id = 'navigateToVipBtn'; 
         smallVipBtn.innerHTML = '👑 <span style="font-size: 0.8em;">VIP</span>'; 
         smallVipBtn.className = 'small-vip-button tab-button'; 
-        
         const dailyBonusContainer = document.getElementById('dailyBonusContainer');
         if (dailyBonusContainer) {
             if (dailyBonusContainer.parentNode === homePage) { 
@@ -419,8 +448,7 @@ document.addEventListener('DOMContentLoaded', () => {
                  coinDisplayElement.parentNode.insertBefore(smallVipBtn, coinDisplayElement.nextSibling);
             } else { homePage.appendChild(smallVipBtn); }
         }
-        console.log("Ana Sayfaya küçük VIP yönlendirme butonu eklendi.");
-
+        // console.log("Ana Sayfaya küçük VIP yönlendirme butonu eklendi."); // Zaten vardı
         smallVipBtn.addEventListener('click', () => {
             if (window.tabSystemInstance) {
                 window.tabSystemInstance.showPage('earn'); 
@@ -444,20 +472,20 @@ document.addEventListener('DOMContentLoaded', () => {
         console.error("Ana Sayfa (homePage) elementi bulunamadı. Küçük VIP butonu eklenemedi.");
     }
 
-    // Ana Günlük Görev Claim Butonu Mantığı (Earn Sayfasındaki)
+    // Ana Günlük Görev Claim Butonu Mantığı (Earn Sayfasındaki) - Bu zaten vardı, korunuyor
     const claimQuestBtn = document.getElementById('claim-btn');
     if (claimQuestBtn) {
         claimQuestBtn.addEventListener('click', () => {
             const todayStr = new Date().toDateString();
             let currentMines = 0;
-            const lastUpdateDate = localStorage.getItem(window.QUEST_LAST_UPDATE_DATE_KEY); // window. ile erişim
+            const lastUpdateDate = localStorage.getItem(window.QUEST_LAST_UPDATE_DATE_KEY);
             if (lastUpdateDate === todayStr) {
-                currentMines = parseInt(localStorage.getItem(window.QUEST_MINE_COUNT_KEY)) || 0; // window. ile erişim
+                currentMines = parseInt(localStorage.getItem(window.QUEST_MINE_COUNT_KEY)) || 0;
             }
             const rewardClaimedToday = localStorage.getItem(QUEST_REWARD_CLAIMED_DATE_KEY) === todayStr;
-            console.log(`Ana Görev Claim butonu tıklandı: Current Mines: ${currentMines}, Target: ${window.QUEST_TARGET_MINES}, Claimed Today: ${rewardClaimedToday}`);
+            // console.log(`Ana Görev Claim butonu tıklandı: Current Mines: ${currentMines}, Target: ${window.QUEST_TARGET_MINES}, Claimed Today: ${rewardClaimedToday}`);
 
-            if (currentMines >= window.QUEST_TARGET_MINES && !rewardClaimedToday) { // window. ile erişim
+            if (currentMines >= window.QUEST_TARGET_MINES && !rewardClaimedToday) {
                 if (typeof window.addCoinsGlobal === 'function') {
                     window.addCoinsGlobal(DAILY_QUEST_REWARD_AMOUNT); 
                     localStorage.setItem(QUEST_REWARD_CLAIMED_DATE_KEY, todayStr); 
@@ -468,7 +496,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             if(generalMessage) generalMessage.textContent = '';
                         }, 3000);
                     }
-                    console.log("Ana günlük görev ödülü alındı:", DAILY_QUEST_REWARD_AMOUNT);
+                    // console.log("Ana günlük görev ödülü alındı:", DAILY_QUEST_REWARD_AMOUNT);
                 } else {
                     console.error("window.addCoinsGlobal fonksiyonu bulunamadı. Ana günlük görev ödülü verilemedi.");
                     alert("Ödül alınırken bir sorun oluştu.");
@@ -477,15 +505,56 @@ document.addEventListener('DOMContentLoaded', () => {
             } else if (rewardClaimedToday) {
                 alert("Bugünkü ana günlük görev ödülünü zaten aldınız!");
             } else {
-                alert(`Ana görevi tamamlamak için ${window.QUEST_TARGET_MINES - currentMines} mining daha yapmalısınız!`); // window. ile erişim
+                alert(`Ana görevi tamamlamak için ${window.QUEST_TARGET_MINES - currentMines} mining daha yapmalısınız!`);
             }
         });
     }
     
-    updateDailyQuestDisplay(); // Sayfa ilk yüklendiğinde ana görev durumunu göster
+    updateDailyQuestDisplay(); 
 
-    // social.js'deki fonksiyonların ve olay dinleyicilerinin başlatılması
-    // Bu fonksiyonların social.js içinde global olarak tanımlandığını varsayıyoruz.
+    // ===== YENİ EKLENEN KISIM: EARN SAYFASINDAKİ ANA WATCH AD BUTONU İÇİN OLAY DİNLEYİCİSİ =====
+    const watchAdBtnOnEarnPage = document.getElementById('watchAdBtn'); // Earn sayfasındaki ana reklam butonu (HTML ID: watchAdBtn)
+    if (watchAdBtnOnEarnPage) {
+        watchAdBtnOnEarnPage.addEventListener('click', () => {
+            const todayStr = new Date().toDateString();
+            if (localStorage.getItem(EARN_PAGE_WATCH_AD_COMPLETED_DATE_KEY) === todayStr) {
+                alert("You have already watched an ad for a reward on this page today.");
+                return;
+            }
+
+            if (typeof showVideoAdModal === 'function') { // showVideoAdModal social.js'de olmalı
+                const videoUrl = "https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/360/Big_Buck_Bunny_360_10s_1MB.mp4"; // Örnek video
+                
+                showVideoAdModal(videoUrl, (videoCompletedSuccessfully) => {
+                    if (videoCompletedSuccessfully) {
+                        if (typeof window.addCoinsGlobal === 'function') {
+                            window.addCoinsGlobal(EARN_PAGE_WATCH_AD_REWARD);
+                            localStorage.setItem(EARN_PAGE_WATCH_AD_COMPLETED_DATE_KEY, todayStr);
+                            updateEarnPageWatchAdButtonState(); // Buton durumunu güncelle
+                            
+                            if (typeof showTemporaryMessageOnPage === 'function') { // social.js'deki fonksiyon
+                                showTemporaryMessageOnPage(`🎉 Ad Reward: +${EARN_PAGE_WATCH_AD_REWARD} MPET!`);
+                            } else {
+                                alert(`🎉 Ad Reward: +${EARN_PAGE_WATCH_AD_REWARD} MPET!`);
+                            }
+                            console.log("'Earn Page Watch Ad' tamamlandı ve ödül verildi.");
+                        } else {
+                            console.error("window.addCoinsGlobal fonksiyonu bulunamadı! 'Earn Page Watch Ad' ödülü verilemedi.");
+                            alert("Ödül alınırken bir sorun oluştu.");
+                        }
+                    } else {
+                        console.log("Earn Page video ad was not completed or was closed early.");
+                    }
+                });
+            } else {
+                console.error("showVideoAdModal fonksiyonu social.js'den yüklenemedi.");
+                alert("Video ad feature is currently unavailable.");
+            }
+        });
+    } // else { console.warn("Earn sayfasındaki ana Watch Ad butonu (#watchAdBtn) HTML'de bulunamadı."); } // Zaten vardı
+    // ======================================================================================
+
+    // social.js'deki fonksiyonların başlatılması (Bunlar zaten vardı, korunuyor)
     if (typeof initInviteButton === 'function') {
         initInviteButton();
     } else { console.error("initInviteButton fonksiyonu social.js'den yüklenemedi."); }
@@ -503,18 +572,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.error("showDailyTasksModal fonksiyonu social.js'den yüklenemedi.");
             }
         });
-    } else { console.warn("Bonus Tasks butonu (#bonusTasksBtn) HTML'de bulunamadı."); }
-
-    const watchAdBtnOnEarnPage = document.getElementById('watchAdBtn');
-    if (watchAdBtnOnEarnPage) {
-        watchAdBtnOnEarnPage.addEventListener('click', () => {
-            alert("Watch Ad (Earn Page) - Feature coming soon!"); 
-        });
-    } else { console.warn("Earn sayfasındaki ana Watch Ad butonu (#watchAdBtn) HTML'de bulunamadı."); }
+    } // else { console.warn("Bonus Tasks butonu (#bonusTasksBtn) HTML'de bulunamadı."); } // Zaten vardı
 
     if (typeof updateVIPUI === 'function') { 
         updateVIPUI();
     } else { console.error("updateVIPUI fonksiyonu social.js'den yüklenemedi."); }
+
+    updateEarnPageWatchAdButtonState(); // Sayfa ilk yüklendiğinde Earn Page Watch Ad buton durumunu ayarla
 
     console.log("Uygulama başlatıldı ve tüm sistemler yüklendi.");
 });
