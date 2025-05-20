@@ -67,11 +67,11 @@ function initAdvancedSpaceRoadAnimation() {
     // Galaksi
     const textureLoader = new THREE.TextureLoader();
     // ÖNEMLİ: Galaksi doku yolunu kendi dosyanızla değiştirin!
-    const galaxyTexture = textureLoader.load('img/sizin_galaksi_gorseliniz.png'); 
+    const galaxyTexture = textureLoader.load('abc.png'); 
     const galaxyMaterial = new THREE.MeshBasicMaterial({ map: galaxyTexture, transparent: true, opacity: 0.30, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide });
-    const galaxyGeometry = new THREE.PlaneGeometry(700, 700); 
+    const galaxyGeometry = new THREE.PlaneGeometry(30, 30); 
     const galaxyMesh = new THREE.Mesh(galaxyGeometry, galaxyMaterial);
-    galaxyMesh.position.set(0, 180, -600); 
+    galaxyMesh.position.set(0, 20, -40); 
     galaxyMesh.rotation.x = -Math.PI / 12; 
     scene.add(galaxyMesh);
 
