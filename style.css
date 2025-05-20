@@ -596,3 +596,65 @@ h1 {
         font-size: 1rem; /* Sizin kodunuzda !important vardı */
     }
 }
+/* style.css dosyanıza ekleyin */
+
+.small-vip-button {
+    padding: 8px 12px; /* Daha küçük padding */
+    font-size: 0.9rem;  /* Daha küçük font */
+    margin-top: 15px;   /* Üstündeki elementle arasında boşluk */
+    /* İsterseniz mevcut .tab-button stilini kullanmak yerine tamamen farklı stiller verebilirsiniz */
+    /* Örneğin, earn-option veya neon-button sınıflarını da verebilirsiniz ama boyutunu ayarlamanız gerekir */
+    background: linear-gradient(90deg, #b8860b, #f0e68c); /* Örnek altın rengi */
+    color: #333; /* Koyu metin */
+    box-shadow: 0 0 8px #daa520, 0 0 15px #daa520;
+}
+
+.small-vip-button:hover {
+    background: linear-gradient(90deg, #f0e68c, #b8860b);
+    color: #000;
+    box-shadow: 0 0 12px #daa520, 0 0 20px #daa520;
+}
+
+.highlight-vip { /* Earn sayfasındaki VIP butonunu geçici vurgulamak için */
+    transition: box-shadow 0.5s ease-in-out, transform 0.3s ease;
+    box-shadow: 0 0 20px 8px gold !important; /* Örnek altın rengi vurgu */
+    transform: scale(1.05);
+}
+#farmButton:active {
+    transform: scale(0.97); /* Butonu hafifçe küçültür (içe basılmış gibi) */
+    background: linear-gradient(90deg, #0c2227, #103840); /* Orijinal rengin biraz daha koyu tonları */
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.4), 
+                0 0 8px #33cccc, /* Dışarıdaki neon gölgeyi biraz azaltabiliriz veya koruyabiliriz */
+                0 0 20px #33cccc; 
+    transition: transform 0.05s ease-out, background 0.05s ease-out; /* Hızlı bir geçiş */
+}
+/* style.css dosyanıza ekleyin veya mevcut olanı güncelleyin */
+
+.daily-tasks-modal .task-button {
+    background-color: #27ae60; /* Mevcut yeşil tonu */
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    /* Daha küçük padding ve font boyutu */
+    padding: 6px 12px; 
+    font-size: 0.85rem; /* Yazı boyutunu küçülttük */
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    min-width: 100px; /* Butonların benzer genişlikte olması için */
+    text-align: center;
+}
+
+.daily-tasks-modal .task-button:hover:not(:disabled) {
+    background-color: #2ecc71;
+}
+
+.daily-tasks-modal .task-button:disabled {
+    background-color: #7f8c8d;
+    cursor: not-allowed;
+    opacity: 0.7; /* Tıklanamaz olduğunda biraz soluklaştır */
+}
+
+/* "✓ Completed" metninin daha iyi görünmesi için ek ayar (isteğe bağlı) */
+.daily-tasks-modal .task-button:disabled {
+    /* Eğer textContent '✓ Completed' ise özel bir stil isterseniz */
+}
