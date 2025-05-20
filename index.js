@@ -400,7 +400,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (homePage) {
         const smallVipBtn = document.createElement('button');
         smallVipBtn.id = 'navigateToVipBtn'; 
-        smallVipBtn.innerHTML = '👑 <span style="font-size: 0.8em;">VIP Alanı</span>'; 
+        smallVipBtn.innerHTML = '👑 <span style="font-size: 0.8em;">VIP</span>'; 
         smallVipBtn.className = 'small-vip-button tab-button'; 
         
         const dailyBonusContainer = document.getElementById('dailyBonusContainer');
