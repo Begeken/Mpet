@@ -187,7 +187,7 @@ function showVIPModal(onConfirm) {
             </div>
             
         </div> 
-    `; // O küçük (Price will be shown...) yazısını kaldırdım, sizin isteğiniz üzerine.
+    `;
     const closeBtn = modalOverlay.querySelector('.close-btn');
     const confirmBtn = modalOverlay.querySelector('.confirm-btn');
     const removeModal = () => { if (modalOverlay.parentNode) modalOverlay.remove(); };
@@ -296,7 +296,7 @@ function updateModalTaskButtonsState(modalElement) {
     // --- "Mine 3 Times" Görev Butonu ---
     const mineTaskButton = modalToQuery.querySelector('#taskBtnMineModal');
     if (mineTaskButton) {
-        const newMineTaskButton = mineTaskButton.cloneNode(true); // Olay dinleyicilerini temizle
+        const newMineTaskButton = mineTaskButton.cloneNode(true); 
         mineTaskButton.parentNode.replaceChild(newMineTaskButton, mineTaskButton);
         
         updateSingleModalTaskButtonState(
@@ -324,7 +324,7 @@ function updateModalTaskButtonsState(modalElement) {
     // --- "Watch 1 Ad" Görev Butonu (Video Modalını Çağıracak Şekilde Güncellendi) ---
     const watchAdButton = modalToQuery.querySelector('#taskBtnWatchAdModal');
     if (watchAdButton) {
-        const newWatchAdButton = watchAdButton.cloneNode(true); // Olay dinleyicilerini temizle
+        const newWatchAdButton = watchAdButton.cloneNode(true); 
         watchAdButton.parentNode.replaceChild(newWatchAdButton, watchAdButton);
 
         updateSingleModalTaskButtonState(
@@ -340,20 +340,14 @@ function updateModalTaskButtonsState(modalElement) {
             }
             const videoUrl = "https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/360/Big_Buck_Bunny_360_10s_1MB.mp4"; 
             
-            // Daily Tasks modalını hemen kapatmayalım.
-            // showDailyTasksModal içindeki removeModal çağrısını yoruma aldık, video bitince veya kapatılınca işlem yapılacak.
-            
             showVideoAdModal(videoUrl, (videoCompletedSuccessfully) => {
                 if (videoCompletedSuccessfully) {
+                    // Olay dinleyicisi zaten #taskBtnWatchAdModal'a bağlı olduğu için event.target yerine onu kullanabiliriz
+                    // veya handleModalTaskClaim'e newWatchAdButton'u direkt gönderebiliriz.
                     handleModalTaskClaim(newWatchAdButton, TASK_MODAL_WATCH_AD_COMPLETED_DATE_KEY, TASK_MODAL_WATCH_AD_REWARD, () => true, "Watch Ad Task");
                 } else {
                     console.log("Video ad was not completed or was closed early.");
                 }
-                // Video modalı kapandıktan sonra Daily Tasks modalı hala açıksa buton durumlarını tazeleyebiliriz
-                // Ancak showVideoAdModal içindeki callback zaten bu butonu güncelleyecektir.
-                // Eğer Daily Tasks modalı kapatılıp tekrar açılırsa, updateModalTaskButtonsState zaten çalışacak.
-                // Bu yüzden burada tekrar çağırmaya gerek olmayabilir.
-                // updateModalTaskButtonsState(); // Bu satır çift güncellemeye neden olabilir, dikkatli olun.
             });
         });
     }
@@ -361,7 +355,7 @@ function updateModalTaskButtonsState(modalElement) {
     // --- "Invite 1 Friend" Görev Butonu ---
     const inviteTaskButton = modalToQuery.querySelector('#taskBtnInviteModal');
     if (inviteTaskButton) {
-        const newInviteTaskButton = inviteTaskButton.cloneNode(true); // Olay dinleyicilerini temizle
+        const newInviteTaskButton = inviteTaskButton.cloneNode(true); 
         inviteTaskButton.parentNode.replaceChild(newInviteTaskButton, inviteTaskButton);
 
         updateSingleModalTaskButtonState(
@@ -378,6 +372,7 @@ function updateModalTaskButtonsState(modalElement) {
     }
 }
 
+// Tek bir modal görev butonunun metnini ve durumunu güncelleyen yardımcı fonksiyon
 function updateSingleModalTaskButtonState(button, isClaimedToday, canClaimCheckCallback, reward, progressTextIfCannotClaim = null) {
     if (!button) return;
     if (isClaimedToday) {
@@ -392,6 +387,7 @@ function updateSingleModalTaskButtonState(button, isClaimedToday, canClaimCheckC
     }
 }
 
+// Modal içindeki bir görevi claim etme işlemini yapan yardımcı fonksiyon
 function handleModalTaskClaim(buttonElement, localStorageKey, rewardAmount, canClaimCheckCallback, taskNameForLog = "Task") {
     if (localStorage.getItem(localStorageKey) === new Date().toDateString()) {
         console.warn(`Attempted to claim '${taskNameForLog}' which was already claimed today or not claimable.`);
@@ -415,6 +411,7 @@ function handleModalTaskClaim(buttonElement, localStorageKey, rewardAmount, canC
     }
 }
 
+// Geçici mesaj göstermek için yardımcı fonksiyon
 function showTemporaryMessageOnPage(text) {
     const messageElement = document.getElementById('message'); 
     if (messageElement) {
