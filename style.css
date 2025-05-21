@@ -1,0 +1,727 @@
+/* Global neon teması */
+:root {
+    --neon-blue: #33cccc;
+    --neon-pink: #ff3377;
+    --space-dark: #0a0f1a;
+    /* CSS değişkeni olarak RGB değerlerini de tanımlayabiliriz, box-shadow'da kullanmak için */
+    --neon-blue-rgb: 51, 204, 204;
+    --neon-pink-rgb: 255, 51, 119;
+}
+
+/* Scroll ve pozisyon kilitleri */
+html, body, #root, .telegram-webapp {
+    height: 100% !important;
+    width: 100% !important;
+    overflow: hidden !important;
+    position: fixed !important;
+    overscroll-behavior: none !important;
+    touch-action: none !important;
+}
+
+/* Container sıfırlamaları */
+#app, #main, .container, .wrapper {
+    overflow: hidden;
+    width: 100vw;
+    height: 100vh;
+    margin: 0; padding: 0;
+}
+* { box-sizing: border-box; }
+
+/* Body padding düzenlemesi */
+body {
+    padding: 20px 20px 80px !important; /* Alt menü için daha fazla boşluk */
+    margin: 0;
+    text-align: center; /* Ana içerik (button vb.) ortada dursun */
+}
+
+/* Üst neon UI kapsayıcısı */
+#uiContainer {
+    position: relative;
+    z-index: 10;
+    mix-blend-mode: screen; 
+    backdrop-filter: blur(2px);
+    min-height: calc(100vh - 80px); 
+    display: flex;
+    flex-direction: column;
+    align-items: center; 
+}
+
+/* Butonlar - neon partikül efektli */
+button {
+    position: relative;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.175,0.885,0.32,1.275);
+    outline: none;
+}
+button::after {
+    content: "";
+    position: absolute; top: -50%; left: -50%;
+    width: 200%; height: 200%;
+    background: radial-gradient(circle,
+        rgba(var(--neon-blue-rgb), 0.8) 0%, /* CSS değişkeni kullanıldı */
+        transparent 70%);
+    transform: scale(0);
+    opacity: 0;
+    transition: transform 0.6s, opacity 0.4s;
+}
+button:hover::after {
+    transform: scale(1);
+    opacity: 1;
+}
+
+/* Metalik başlık efekti */
+h1 {
+    background: linear-gradient(90deg, var(--neon-blue), #a0ffff, var(--neon-blue));
+    -webkit-background-clip: text; background-clip: text;
+    color: transparent;
+    -webkit-text-stroke: 1px rgba(var(--neon-blue-rgb), 0.3); /* CSS değişkeni kullanıldı */
+    margin-top: 0;
+    margin-bottom: 20px; /* Ana başlık için genel bir alt boşluk */
+}
+
+/* Sayfa geçiş animasyonu */
+.page {
+    transform-origin: center top;
+    animation: pageEnter 0.6s forwards;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    width: 100%;
+    display: none; 
+    flex-direction: column;
+    align-items: center;
+}
+.page:not(.active) {
+    opacity: 0;
+    transform: translateY(10px);
+    pointer-events: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+.page.active {
+    display: flex; 
+}
+@keyframes pageEnter {
+    from { opacity:0; transform:rotateX(15deg) translateY(20px); }
+    to   { opacity:1; transform:rotateX(0)   translateY(0); }
+}
+
+/* Coin puls efekti & Konumlandırma */
+#coinDisplay {
+    animation: coinPulse 3s infinite;
+    margin-top: 30px; 
+    margin-bottom: 20px; 
+    /* Font boyutu ve diğer stiller index.html içindeki inline style'dan gelebilir veya buraya taşınabilir. */
+    /* Eğer index.html'de #coinDisplay için inline style varsa, bu margin değerleri onu ezecektir. */
+}
+@keyframes coinPulse {
+    0%,100% { transform: scale(1); }
+    50%     { transform: scale(1.05); }
+}
+
+/* ===== OPTİMİZE EDİLMİŞ TAB BAR SİSTEMİ ===== */
+.tabs {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: space-around;
+    background: rgba(15, 44, 49, 0.9);
+    padding: 12px 0;
+    z-index: 1000;
+    backdrop-filter: blur(10px);
+    border-top: 1px solid var(--neon-blue);
+    margin: 0;
+    box-shadow: 0 -5px 15px rgba(0,0,0,0.3);
+}
+
+.tab-button {
+    background: transparent;
+    border: none;
+    color: var(--neon-blue);
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.85rem;
+    padding: 8px 15px;
+    border-radius: 10px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    margin: 0;
+    transition: all 0.3s ease;
+    min-width: 60px;
+}
+
+.tab-button i {
+    font-size: 1.3rem;
+    transition: all 0.3s ease;
+}
+
+.tab-text {
+    font-size: 0.7rem;
+    display: block;
+    transition: all 0.3s ease;
+}
+
+.tab-button:hover {
+    color: #a0ffff;
+    transform: translateY(-3px);
+}
+
+.tab-button:hover i {
+    text-shadow: 0 0 10px var(--neon-blue);
+}
+
+.tab-button:disabled {
+    color: #55ffff;
+    background: rgba(var(--neon-blue-rgb), 0.2); /* CSS değişkeni kullanıldı */
+    transform: none;
+    cursor: default;
+}
+
+/* Earn sayfası */
+#earnPage.active {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Daily Quest kutusu */
+.quest-container {
+    background: rgba(10,15,26,0.85);
+    border: 1px solid var(--neon-blue);
+    border-radius: 12px;
+    padding: 20px;
+    margin: 20px auto;
+    max-width: 320px;
+    text-align: center;
+    box-shadow: 0 0 15px rgba(var(--neon-blue-rgb), 0.4), /* CSS değişkeni kullanıldı */
+                inset 0 0 10px rgba(var(--neon-blue-rgb), 0.2); /* CSS değişkeni kullanıldı */
+    backdrop-filter: blur(6px);
+}
+
+.quest-container h3 {
+    color: var(--neon-blue);
+    font-size: 1.1rem;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+/* Progress bar */
+.progress-bar {
+    width: 100%;
+    height: 8px;
+    background: rgba(var(--neon-blue-rgb), 0.15); /* CSS değişkeni kullanıldı */
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 10px 0;
+}
+.progress-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, var(--neon-blue), var(--neon-pink));
+    transition: width 0.7s ease;
+}
+
+/* Telegram Paylaş Butonu */
+#shareBtn {
+    display: none !important;
+}
+.telegram-webapp #shareBtn {
+    display: flex !important;
+}
+
+/* VIP butonu efekti */
+.vip-btn {
+    background: linear-gradient(90deg, #ffd700, #ff9900);
+    animation: glow 1.5s infinite alternate;
+    position: relative;
+}
+@keyframes glow {
+    from { box-shadow: 0 0 5px #ffd700; }
+    to { box-shadow: 0 0 20px #ff9900; }
+}
+
+/* Ekstra güvenlik önlemleri */
+.telegram-webapp body {
+    padding-bottom: calc(80px + env(safe-area-inset-bottom)) !important;
+}
+
+/* FARM BUTONU STİLLERİ (ORTALAMA VE ALTA ALMA) */
+#miningContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center; 
+    margin-top: 15vh; 
+    margin-bottom: 20px; 
+}
+
+#farmButton {
+    display: flex;
+    flex-direction: column; 
+    align-items: center; 
+    justify-content: center; 
+    padding: 18px 50px;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #55ffff;
+    cursor: pointer;
+    box-shadow:
+        0 0 14px var(--neon-blue),
+        0 0 35px var(--neon-blue),
+        0 0 50px #164650;
+    transition: all 0.4s cubic-bezier(0.175,0.885,0.32,1.275);
+    margin: 10px auto; 
+    letter-spacing: 2px;
+    white-space: nowrap;
+}
+
+.cooldown-badge {
+    background-color: rgba(0, 0, 0, 0.5);
+    color: var(--neon-pink); /* CSS değişkeni kullanıldı */
+    padding: 8px 15px;
+    border-radius: 8px;
+    font-size: 1rem;
+    margin-top: 5px; 
+    text-shadow: 0 0 5px var(--neon-pink), 0 0 10px var(--neon-pink); 
+}
+
+/* FARM BUTONU INACTIVE STİLİ */
+#farmButton.inactive {
+    opacity: 0.6; 
+    box-shadow: none; 
+    cursor: wait; 
+}
+
+/* Günlük Görevler Modalı Stilleri */
+.daily-tasks-modal-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex; justify-content: center; align-items: center;
+    z-index: 1000;
+}
+.daily-tasks-modal {
+    background: #0f2b31; color: #55ffff; padding: 20px;
+    border-radius: 15px; box-shadow: 0 0 20px var(--neon-blue); /* CSS değişkeni kullanıldı */
+    text-align: left; width: 80%; max-width: 500px;
+}
+.daily-tasks-modal h3 {
+    color: #a0ffff; margin-top: 0; margin-bottom: 15px;
+    display: flex; align-items: center; gap: 10px;
+}
+.daily-tasks-modal ul { list-style: none; padding: 0; margin-bottom: 20px; }
+.daily-tasks-modal li {
+    padding: 10px 0; border-bottom: 1px solid var(--neon-blue); /* CSS değişkeni kullanıldı */
+    display: flex; justify-content: space-between; align-items: center;
+}
+.daily-tasks-modal li:last-child { border-bottom: none; }
+.daily-tasks-modal li i { margin-right: 10px; color: var(--neon-blue); /* CSS değişkeni kullanıldı */ }
+.task-button {
+    background: linear-gradient(90deg, #164650, #0f2b31); color: #55ffff;
+    border: none; border-radius: 8px; padding: 8px 15px;
+    cursor: pointer; transition: background-color 0.3s ease;
+}
+.task-button:hover:not(:disabled) {
+    background: linear-gradient(90deg, #33eeee, var(--neon-blue)); /* CSS değişkeni kullanıldı */
+    color: #aaffff;
+}
+.task-button:disabled { background-color: #222; color: #555; cursor: not-allowed; }
+.daily-tasks-modal .close-btn {
+    background: var(--neon-pink); color: white; /* CSS değişkeni kullanıldı */
+    border: none; border-radius: 8px; padding: 10px 20px;
+    cursor: pointer; font-size: 1rem; transition: background-color 0.3s ease;
+    margin-top: 15px;
+}
+.daily-tasks-modal .close-btn:hover { background: #ff6699; }
+
+/* VIP Modal Stilleri */
+.vip-modal .modal-buttons { display: flex; justify-content: space-around; margin-top: 20px; }
+.vip-modal .modal-buttons button { padding: 10px 20px; border-radius: 8px; cursor: pointer; border: none; font-size: 1rem; }
+.vip-modal .modal-buttons .confirm-btn { background-color: var(--neon-blue); color: white; }
+.vip-modal .modal-buttons .close-btn { background-color: #ccc; color: #333; }
+
+
+/* Günlük Giriş Bonusu Stilleri */
+#dailyBonusContainer {
+    margin-top: 25px; 
+    margin-bottom: 20px;
+    padding: 15px;
+    background-color: rgba(10, 25, 40, 0.7); 
+    border-radius: 10px;
+    border: 1px solid var(--neon-blue); 
+    box-shadow: 0 0 10px rgba(var(--neon-blue-rgb), 0.3); 
+    text-align: center;
+}
+#claimDailyBonusBtn {
+    background: linear-gradient(90deg, var(--neon-pink), #ff66a3); 
+    color: white;
+    padding: 12px 25px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 0 8px var(--neon-pink);
+}
+#claimDailyBonusBtn:hover:not(:disabled) {
+    background: linear-gradient(90deg, #ff66a3, var(--neon-pink));
+    box-shadow: 0 0 15px var(--neon-pink), 0 0 25px var(--neon-pink);
+    transform: scale(1.05);
+}
+#claimDailyBonusBtn:disabled {
+    background: #444; 
+    color: #888;
+    cursor: not-allowed;
+    opacity: 0.7;
+    box-shadow: none;
+    transform: none;
+}
+#dailyBonusMessage {
+    font-size: 0.95rem;
+    margin-top: 12px;
+    color: var(--neon-blue); 
+    min-height: 20px; 
+}
+
+/* Liderlik Tablosu Sayfası Stilleri */
+#leaderboardPage {
+    padding: 20px;
+    text-align: center;
+    width: 100%; 
+    box-sizing: border-box; 
+}
+#leaderboardPage h2 {
+    color: var(--neon-pink); 
+    margin-top: 10px; 
+    margin-bottom: 15px; 
+    font-size: 1.8rem; 
+}
+#leaderboardPage p {
+    color: var(--neon-blue); 
+    margin-bottom: 25px;
+    font-size: 1rem;
+}
+#fullLeaderboardList {
+    list-style: none;
+    padding: 0;
+    margin: 0 auto; 
+    max-width: 450px; 
+}
+#fullLeaderboardList li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 15px;
+    background-color: rgba(10, 25, 40, 0.6); 
+    border-bottom: 1px solid rgba(var(--neon-blue-rgb), 0.2); 
+    border-radius: 6px; 
+    margin-bottom: 10px; 
+    color: #f0f0f0; 
+    font-size: 0.95rem;
+}
+#fullLeaderboardList li:last-child {
+    border-bottom: none; 
+}
+#fullLeaderboardList .rank {
+    font-weight: bold;
+    color: var(--neon-blue);
+    margin-right: 15px;
+    min-width: 35px; 
+    text-align: left;
+}
+#fullLeaderboardList .name {
+    flex-grow: 1; 
+    text-align: left; 
+    margin-left: 5px;
+    color: #ffffff; 
+}
+#fullLeaderboardList .score {
+    font-weight: bold;
+    color: var(--neon-pink); 
+    min-width: 80px; 
+    text-align: right;
+}
+#playerRankSectionOnLeaderboard {
+    margin-top: 30px;
+    padding: 15px;
+    background-color: rgba(var(--neon-pink-rgb), 0.15); 
+    border: 1px solid var(--neon-pink);
+    border-radius: 8px;
+    max-width: 450px; 
+    margin-left: auto;
+    margin-right: auto;
+    color: #f0f0f0; 
+    font-size: 1rem;
+    font-weight: bold;
+}
+#playerRankSectionOnLeaderboard .rank { 
+    color: var(--neon-blue);
+}
+
+
+/* Mobil uyumluluk */
+@media (max-width: 480px) {
+    body {
+        padding: 10px 10px 70px !important; /* MOBİL İÇİN GÜNCELLENDİ */
+        font-size: 13px; /* MOBİL İÇİN EKLENDİ */
+    }
+
+    #uiContainer { /* MOBİL İÇİN GÜNCELLENDİ */
+        min-height: calc(100vh - 70px); /* body padding'i ile uyumlu */
+    }
+
+    h1 { /* MOBİL İÇİN EKLENDİ */
+        font-size: 1.8rem; 
+        margin-bottom: 15px;
+    }
+
+    /* Farm Butonu ve Çevresi Mobil */
+    #miningContainer { /* MOBİL İÇİN EKLENDİ */
+        margin-top: 8vh; 
+        width: 90%;     
+        max-width: 320px; 
+    }
+    
+    #farmButton { /* MOBİL İÇİN EKLENDİ */
+        padding: 12px 25px; 
+        font-size: 1.1rem;  
+    }
+
+    .cooldown-badge { /* MOBİL İÇİN EKLENDİ */
+        font-size: 0.85rem;
+        padding: 6px 10px;
+    }
+
+    #coinDisplay { /* MOBİL İÇİN EKLENDİ */
+        font-size: 1.8rem; 
+        margin-top: 15px; 
+        margin-bottom: 15px;
+    }
+
+    /* Günlük Bonus Alanı Mobil Stilleri */
+    #dailyBonusContainer { /* MOBİL İÇİN EKLENDİ */
+        margin-top: 20px;
+        padding: 10px;
+        width: 90%; 
+        max-width: 300px; 
+    }
+
+    #claimDailyBonusBtn { /* MOBİL İÇİN EKLENDİ */
+        padding: 10px 18px;
+        font-size: 1rem;
+    }
+    #dailyBonusMessage { /* MOBİL İÇİN EKLENDİ */
+        font-size: 0.85rem;
+        margin-top: 10px;
+    }
+
+    /* Liderlik Tablosu Sayfası Mobil Stilleri */
+    #leaderboardPage { /* MOBİL İÇİN EKLENDİ */
+        padding: 15px; 
+    }
+
+    #leaderboardPage h2 { /* MOBİL İÇİN EKLENDİ */
+        font-size: 1.5rem; 
+        margin-bottom: 10px;
+    }
+
+    #leaderboardPage p { /* MOBİL İÇİN EKLENDİ */
+        font-size: 0.9rem;
+        margin-bottom: 15px;
+    }
+
+    #fullLeaderboardList { /* MOBİL İÇİN EKLENDİ */
+        max-width: 100%; 
+    }
+
+    #fullLeaderboardList li { /* MOBİL İÇİN EKLENDİ */
+        padding: 8px 10px;
+        font-size: 0.85rem; 
+        margin-bottom: 6px;
+        /* flex-direction: row; Bu zaten varsayılan, gerekirse column yapılabilir */
+        align-items: center;
+    }
+    #fullLeaderboardList .rank { /* MOBİL İÇİN EKLENDİ */
+        margin-right: 8px;
+        min-width: 25px; 
+    }
+    #fullLeaderboardList .name { /* MOBİL İÇİN EKLENDİ */
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        margin-left: 3px;
+    }
+    #fullLeaderboardList .score { /* MOBİL İÇİN EKLENDİ */
+        min-width: auto; 
+        font-size: 0.8rem;
+        margin-left: 5px; 
+    }
+
+    #playerRankSectionOnLeaderboard { /* MOBİL İÇİN EKLENDİ */
+        margin-top: 20px;
+        padding: 12px;
+        font-size: 0.9rem;
+        width: 90%; 
+        max-width: 320px;
+    }
+    
+    /* Mevcut mobil .tabs ve .tab-button stilleriniz iyiydi, onları biraz daha düzenledim */
+    .tabs { /* MOBİL İÇİN GÜNCELLENDİ */
+        padding: 8px 0; 
+    }
+    .tab-button { /* MOBİL İÇİN GÜNCELLENDİ */
+        min-width: auto; /* Daha esnek olması için */
+        padding: 6px 8px; /* Buton iç boşlukları */
+        font-size: 0.65rem; /* Sekme butonu yazı boyutu */
+    }
+    .tab-button i { /* MOBİL İÇİN GÜNCELLENDİ */
+        font-size: 1rem; /* Sekme butonu ikon boyutu */
+    }
+    .tab-text { /* MOBİL İÇİN GÜNCELLENDİ */
+        font-size: 0.5rem; /* Sekme butonu alt yazı boyutu daha da küçük */
+    }
+
+    /* Quest container mobil stilleri zaten vardı, onları korudum */
+    .quest-container {
+        max-width: 280px; /* Sizin kodunuzda !important vardı, kaldırdım, gerekirse eklersiniz */
+        padding: 15px;    /* Sizin kodunuzda !important vardı */
+    }
+    .quest-container h3 { /* #earnPage .quest-container h3 yerine daha genel yaptım */
+        font-size: 1rem; /* Sizin kodunuzda !important vardı */
+    }
+}
+/* style.css dosyanıza ekleyin */
+
+.small-vip-button {
+    padding: 8px 12px; /* Daha küçük padding */
+    font-size: 0.9rem;  /* Daha küçük font */
+    margin-top: 15px;   /* Üstündeki elementle arasında boşluk */
+    /* İsterseniz mevcut .tab-button stilini kullanmak yerine tamamen farklı stiller verebilirsiniz */
+    /* Örneğin, earn-option veya neon-button sınıflarını da verebilirsiniz ama boyutunu ayarlamanız gerekir */
+    background: linear-gradient(90deg, #b8860b, #f0e68c); /* Örnek altın rengi */
+    color: #333; /* Koyu metin */
+    box-shadow: 0 0 8px #daa520, 0 0 15px #daa520;
+}
+
+.small-vip-button:hover {
+    background: linear-gradient(90deg, #f0e68c, #b8860b);
+    color: #000;
+    box-shadow: 0 0 12px #daa520, 0 0 20px #daa520;
+}
+
+.highlight-vip { /* Earn sayfasındaki VIP butonunu geçici vurgulamak için */
+    transition: box-shadow 0.5s ease-in-out, transform 0.3s ease;
+    box-shadow: 0 0 20px 8px gold !important; /* Örnek altın rengi vurgu */
+    transform: scale(1.05);
+}
+#farmButton:active {
+    transform: scale(0.97); /* Butonu hafifçe küçültür (içe basılmış gibi) */
+    background: linear-gradient(90deg, #0c2227, #103840); /* Orijinal rengin biraz daha koyu tonları */
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.4), 
+                0 0 8px #33cccc, /* Dışarıdaki neon gölgeyi biraz azaltabiliriz veya koruyabiliriz */
+                0 0 20px #33cccc; 
+    transition: transform 0.05s ease-out, background 0.05s ease-out; /* Hızlı bir geçiş */
+}
+/* style.css dosyanıza ekleyin veya mevcut olanı güncelleyin */
+
+.daily-tasks-modal .task-button {
+    background-color: #27ae60; /* Mevcut yeşil tonu */
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    /* Daha küçük padding ve font boyutu */
+    padding: 6px 12px; 
+    font-size: 0.85rem; /* Yazı boyutunu küçülttük */
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    min-width: 100px; /* Butonların benzer genişlikte olması için */
+    text-align: center;
+}
+
+.daily-tasks-modal .task-button:hover:not(:disabled) {
+    background-color: #2ecc71;
+}
+
+.daily-tasks-modal .task-button:disabled {
+    background-color: #7f8c8d;
+    cursor: not-allowed;
+    opacity: 0.7; /* Tıklanamaz olduğunda biraz soluklaştır */
+}
+
+/* "✓ Completed" metninin daha iyi görünmesi için ek ayar (isteğe bağlı) */
+.daily-tasks-modal .task-button:disabled {
+    /* Eğer textContent '✓ Completed' ise özel bir stil isterseniz */
+}
+/* style.css dosyanıza ekleyin */
+
+.video-ad-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.75); /* Daha koyu bir arka plan */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1001; /* Diğer modallardan da üstte olsun */
+    padding: 15px;
+    box-sizing: border-box;
+}
+
+.video-ad-modal-content {
+    background-color: #0a0f1a; /* Ana tema ile uyumlu */
+    padding: 20px;
+    border-radius: 10px;
+    border: 1px solid var(--neon-blue);
+    box-shadow: 0 0 25px rgba(var(--neon-blue-rgb), 0.5);
+    text-align: center;
+    max-width: 90%;
+    max-height: 90%;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.video-ad-modal-content h4 {
+    color: var(--neon-blue);
+    margin-top: 0;
+    font-size: 1.1rem;
+}
+
+.video-ad-modal-content video {
+    max-width: 100%;
+    border-radius: 5px;
+    max-height: calc(90vh - 150px); /* Başlık ve buton için pay bırak */
+}
+
+.video-ad-modal-content .close-video-btn {
+    background: var(--neon-pink); /* Kapatma butonu için farklı renk */
+    color: white;
+    padding: 8px 15px;
+    font-size: 0.9rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.video-ad-modal-content .close-video-btn:hover {
+    background: #ff6699; /* Hover rengi */
+}
+/* style.css içinde geçici test için */
+.video-ad-modal-content video {
+    width: 280px;  /* Veya ekranınıza sığacak % bir değer, örn: 80% */
+    height: 150px; /* Sabit bir yükseklik */
+    background-color: #222; /* Video alanının yerini görmek için */
+    /* Aşağıdaki satırları geçici olarak yorumlayın veya silin */
+    /* max-width: 100%; */
+    /* border-radius: 5px; */
+    /* max-height: calc(90vh - 150px); */ 
+}
